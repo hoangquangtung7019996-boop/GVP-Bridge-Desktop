@@ -22,8 +22,33 @@ All notable changes to the GVP Bridge project will be documented in this file.
 
 ---
 
+## [0.2.0] - 2026-03-28
+
+### Session Summary
+- Completed: 8 tasks (Extension fix, Tauri v2 migration)
+- Artifacts: 1 folder in .agents/reports/ (PLAN_008)
+- Files modified: 12
+
+### Added
+- **Tauri v2 Migration**: 
+  - Upgraded backend to tauri@2.0.0 and tauri-plugin-shell.
+  - Implemented `tauri::Emitter` for v2 event broadcasting.
+  - Added `#[tokio::main]` async runtime for WebSocket server stability.
+- **Extension Modernization**:
+  - Migrated host permissions and matches to `https://grok.com/*`.
+  - Created **Popup UI** for real-time status monitoring and WebSocket info.
+  - Added **Keyboard Shortcuts**: `Ctrl+Shift+B` (Activate), `Ctrl+Shift+F` (Reload).
+  - Integrated timestamped `debug()` utility in content script.
+
+### Changed
+- Updated frontend API imports to `@tauri-apps/api/core`.
+- Modernized `content.js` with status reporting to Popup UI.
+
+---
+
 ## Version History
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.2.0 | 2026-03-28 | Tauri v2 Migration & Extension Modernization |
 | 0.0.1 | 2025-03-28 | Initial project setup, workflow system created |
