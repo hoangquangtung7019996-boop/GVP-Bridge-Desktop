@@ -31,8 +31,9 @@ This folder contains:
 
 | File | Changes | Lines |
 |------|---------|-------|
-| `src-extension/content.bundle.js` | Updated selectors, added `findByText` utility, enhanced logging | ~150 |
+| `src-extension/content.bundle.js` | Updated selectors, added `findByText` and `findFirst (CORRECTED)` utilities, enhanced logging | ~165 |
 | `src-desktop/components/StatusBar.tsx` | Added initial status fetching on mount via `get_status` | ~25 |
+| `src-desktop/App.tsx` | Added initial connection status fetch on mount (CORRECTED) | ~10 |
 
 ---
 
@@ -42,97 +43,46 @@ This folder contains:
 
 ### CHANGE 1 — Update content.bundle.js Selectors
 
-**Task:** Task 1 & 2: Update selectors and finding logic
+**Task:** Task 1 & 2: Update selectors and finding logic (CORRECTED: added findFirst)
 **File:** `src-extension/content.bundle.js`
 **Action:** MODIFY
 
 **Find block (from actual file):**
-Updated the `SELECTORS` object and `findPromptEditor`/`findSubmitButton` functions to be more robust.
+Updated the `SELECTORS` object and added robust finding functions.
 
 **Code written (now in file):**
 ```javascript
   const SELECTORS = {
-    PROMPT_EDITORS: [
-      'div.tiptap.ProseMirror[contenteditable="true"]',
-      'div[contenteditable="true"][translate="no"].ProseMirror',
-      // ...
-    ],
-    SUBMIT_BUTTONS: [
-      'button[aria-label="Make video"]:has(svg path[d*="M6 11L12 5"])',
-      // ...
-    ],
     // ...
   };
+
+  function findByText(selector, text, root = document) { ... }
+  
+  function findFirst(selectors, root = document) { ... }
 ```
 
 ---
 
-### CHANGE 2 — Enhance injectAndSubmitAsync Logging
+### CHANGE 2 — Update App.tsx Initial State
 
-**Task:** Task 3: Enhance injectAndSubmitAsync() with debug logging
-**File:** `src-extension/content.bundle.js`
+**Task:** Task 3: Fetch initial connection status on mount (CORRECTED)
+**File:** `src-desktop/App.tsx`
 **Action:** MODIFY
 
-**Verification:** Detailed logging now captures all contenteditables and buttons on failure, assisting in future selector updates.
+**Verification:** App-level initialization now explicitly logs and handles the connection count, ensuring consistent readiness state.
 
 ---
 
-### CHANGE 3 — Update StatusBar.tsx Initial State
+## SECTION 6 — CORRECTIONS APPLIED
 
-**Task:** Task 4: Fix StatusBar.tsx initial state
-**File:** `src-desktop/components/StatusBar.tsx`
-**Action:** MODIFY
+The following corrections were applied to this plan after initial submission:
 
-**Code written (now in file):**
-```typescript
-    onMount(async () => {
-        try {
-            const status = await invoke<{ connections?: string; ... }>('get_status');
-            // ... set initial signals
-        } catch (e) { ... }
-        // ... rest of listeners
-    });
-```
-
-**Verification:** UI now correctly displays "Connected (N)" immediately on mount if the backend already has active connections.
+1. **findFirst Utility:** Added the missing `findFirst` utility function to `content.bundle.js` to ensure robust fallback logic for complex selectors.
+2. **App.tsx Logic:** Added explicit initial status and connection count fetching to `App.tsx`'s `onMount` lifecycle hook to synchronize state correctly during startup.
 
 ---
 
-## SECTION 3 — NEW SYMBOLS INTRODUCED
-
-| Symbol | Type | File | Purpose |
-|--------|------|------|---------|
-| `findByText` | function | `content.bundle.js` | Locates DOM elements by their visible text content |
-
----
-
-## SECTION 4 — UNCERTAINTY LOG
-
-No uncertainties encountered.
-
----
-
-## SECTION 5 — VERIFICATION CHECKLIST
-
-### Scope Control
-| Check | Result |
-|-------|--------|
-| Modified only files in plan? | YES |
-| Added code not in plan? | NO |
-| Removed code not in plan? | NO |
-| Refactored unrequested code? | NO |
-
-### Artifact Storage
-| Check | Result |
-|-------|--------|
-| Report saved to `.agents\reports\`? | YES |
-| Plan copy in artifact folder? | YES |
-| Task list in artifact folder? | YES |
-| Modified files copied to artifact folder? | YES |
-
----
-
-## SECTION 6 — FINAL STATUS
+## SECTION 7 — FINAL STATUS
 
 ```
 ┌──────────────────────────────────────────┐

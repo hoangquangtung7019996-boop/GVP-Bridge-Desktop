@@ -60,6 +60,22 @@
     return null;
   }
 
+  // Utility: Try each selector, including function selectors
+  function findFirst(selectors, root = document) {
+    for (const selector of selectors) {
+      try {
+        if (typeof selector === 'function') {
+          const el = selector();
+          if (el) return el;
+        } else {
+          const el = root.querySelector(selector);
+          if (el) return el;
+        }
+      } catch (e) { /* ignore invalid selectors */ }
+    }
+    return null;
+  }
+
   function findPromptEditor() {
     for (const selector of SELECTORS.PROMPT_EDITORS) {
       const el = document.querySelector(selector);
