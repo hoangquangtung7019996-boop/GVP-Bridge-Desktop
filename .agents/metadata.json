@@ -1,0 +1,117 @@
+{
+  "knowledge_items": {
+    "gvp-manager-pattern-architecture": {
+      "path": "/home/z/my-project/knowledge_items/gvp-manager-pattern-architecture",
+      "file": "gvp-manager-pattern-architecture.md",
+      "category": "Core Infrastructure",
+      "phase": 1
+    },
+    "gvp-indexeddb-schema-v19": {
+      "path": "/home/z/my-project/knowledge_items/gvp-indexeddb-schema-v19",
+      "file": "gvp-indexeddb-schema-v19.md",
+      "category": "Core Infrastructure",
+      "phase": 1
+    },
+    "gvp-account-isolation-architecture": {
+      "path": "/home/z/my-project/knowledge_items/gvp-account-isolation-architecture",
+      "file": "gvp-account-isolation-architecture.md",
+      "category": "Core Infrastructure",
+      "phase": 1
+    },
+    "gvp-unified-video-history-flow": {
+      "path": "/home/z/my-project/knowledge_items/gvp-unified-video-history-flow",
+      "file": "gvp-unified-video-history-flow.md",
+      "category": "Data Flow",
+      "phase": 2
+    },
+    "gvp-multi-tab-synchronization": {
+      "path": "/home/z/my-project/knowledge_items/gvp-multi-tab-synchronization",
+      "file": "gvp-multi-tab-synchronization.md",
+      "category": "Data Flow",
+      "phase": 2
+    },
+    "gvp-terminal-state-persistence": {
+      "path": "/home/z/my-project/knowledge_items/gvp-terminal-state-persistence",
+      "file": "gvp-terminal-state-persistence.md",
+      "category": "Data Flow",
+      "phase": 2
+    },
+    "gvp-shadow-dom-isolation": {
+      "path": "/home/z/my-project/knowledge_items/gvp-shadow-dom-isolation",
+      "file": "gvp-shadow-dom-isolation.md",
+      "category": "UI System",
+      "phase": 3
+    },
+    "gvp-21-sub-managers-hierarchy": {
+      "path": "/home/z/my-project/knowledge_items/gvp-21-sub-managers-hierarchy",
+      "file": "gvp-21-sub-managers-hierarchy.md",
+      "category": "UI System",
+      "phase": 3
+    },
+    "gvp-toast-notification-system": {
+      "path": "/home/z/my-project/knowledge_items/gvp-toast-notification-system",
+      "file": "gvp-toast-notification-system.md",
+      "category": "UI System",
+      "phase": 3
+    },
+    "gvp-tiptap-prosemirror-injection": {
+      "path": "/home/z/my-project/knowledge_items/gvp-tiptap-prosemirror-injection",
+      "file": "gvp-tiptap-prosemirror-injection.md",
+      "category": "Automation Engine",
+      "phase": 4
+    },
+    "gvp-video-queue-pipeline": {
+      "path": "/home/z/my-project/knowledge_items/gvp-video-queue-pipeline",
+      "file": "gvp-video-queue-pipeline.md",
+      "category": "Automation Engine",
+      "phase": 4
+    },
+    "gvp-triple-layer-defense": {
+      "path": "/home/z/my-project/knowledge_items/gvp-triple-layer-defense",
+      "file": "gvp-triple-layer-defense.md",
+      "category": "Automation Engine",
+      "phase": 4
+    },
+    "gvp-dual-layer-fetch-interception": {
+      "path": "/home/z/my-project/knowledge_items/gvp-dual-layer-fetch-interception",
+      "file": "gvp-dual-layer-fetch-interception.md",
+      "category": "Network Interception",
+      "phase": 5
+    },
+    "gvp-sse-ndjson-stream-decoding": {
+      "path": "/home/z/my-project/knowledge_items/gvp-sse-ndjson-stream-decoding",
+      "file": "gvp-sse-ndjson-stream-decoding.md",
+      "category": "Network Interception",
+      "phase": 5
+    },
+    "gvp-network-guard-gatekeeper": {
+      "path": "/home/z/my-project/knowledge_items/gvp-network-guard-gatekeeper",
+      "file": "gvp-network-guard-gatekeeper.md",
+      "category": "Network Interception",
+      "phase": 5
+    },
+    "gvp-absolute-root-lineage-resolution": {
+      "path": "/home/z/my-project/knowledge_items/gvp-absolute-root-lineage-resolution",
+      "file": "gvp-absolute-root-lineage-resolution.md",
+      "category": "Gallery & Lineage",
+      "phase": 6
+    },
+    "gvp-gallery-mini-ui-rails": {
+      "path": "/home/z/my-project/knowledge_items/gvp-gallery-mini-ui-rails",
+      "file": "gvp-gallery-mini-ui-rails.md",
+      "category": "Gallery & Lineage",
+      "phase": 6
+    }
+  },
+  "categories": {
+    "Core Infrastructure": ["gvp-manager-pattern-architecture", "gvp-indexeddb-schema-v19", "gvp-account-isolation-architecture"],
+    "Data Flow": ["gvp-unified-video-history-flow", "gvp-multi-tab-synchronization", "gvp-terminal-state-persistence"],
+    "UI System": ["gvp-shadow-dom-isolation", "gvp-21-sub-managers-hierarchy", "gvp-toast-notification-system"],
+    "Automation Engine": ["gvp-tiptap-prosemirror-injection", "gvp-video-queue-pipeline", "gvp-triple-layer-defense"],
+    "Network Interception": ["gvp-dual-layer-fetch-interception", "gvp-sse-ndjson-stream-decoding", "gvp-network-guard-gatekeeper"],
+    "Gallery & Lineage": ["gvp-absolute-root-lineage-resolution", "gvp-gallery-mini-ui-rails"]
+  },
+  "total_kis": 17,
+  "source_repository": "https://github.com/hoangquangtung7019996-boop/GVP",
+  "created_at": "2025-03-27"
+}

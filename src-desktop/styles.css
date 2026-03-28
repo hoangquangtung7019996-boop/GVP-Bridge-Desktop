@@ -1,0 +1,42 @@
+/* Dark theme matching Grok */
+:root {
+    --bg-primary: #141414;
+    --bg-secondary: #212121;
+    --bg-hover: #262626;
+    --border-color: #48494b;
+    --text-primary: #f4f4f5;
+    --text-secondary: #a3a3a3;
+    --accent: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.app {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* TODO: Add styles for:
+   - .prompt-input (textarea)
+   - .status-indicator
+   - .connection-dot
+   - .send-button (optional)
+*/
