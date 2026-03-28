@@ -13,10 +13,12 @@
 2. Organized folder structure with `.agents/` directory
 3. Created rules.md with project constraints and guidelines
 4. Created 5 workflow files: start.md, implement.md, report.md, correction.md, close-and-prepare.md
+5. Implemented Extension MVP (PLAN-001) - URL detection, injection, WebSocket client
+6. Implemented Desktop App WebSocket Server (PLAN-002) - Tauri backend, SolidJS UI
 
 ### In-Progress Tasks
-1. Create Knowledge Items for GVP Bridge — Need to extract relevant KIs from original GVP
-2. Create implementation plan for MVP — Need to draft first implementation plan
+1. Integration Testing - End-to-end verification of prompt injection flow
+2. UI Refinement - Styling and UX improvements for desktop app
 
 ### Blocked Tasks
 None
@@ -66,15 +68,15 @@ None
 
 ## Priority Order for Next Session
 
-1. **Implement Extension MVP** (PLAN-001)
-   - Why: Core functionality needed before desktop app
-   - Files: `src-extension/` (5 new files)
-   - Status: Plan created, awaiting implementation
+1. **End-to-End Integration Testing**
+   - Why: Verify that Extension ↔ Desktop communication works for real prompt injection
+   - Steps: Build extension, start Tauri dev, click Grok gallery card
+   - Status: Ready for testing
 
-2. **Create Desktop App WebSocket Server**
-   - Why: Extension needs something to connect to
-   - Files: `src-desktop/`
-   - Status: Not started, depends on Extension MVP
+2. **UI Refinement & Polish**
+   - Why: Improve desktop app aesthetics and usability
+   - Files: `src-desktop/styles.css`, `src-desktop/components/`
+   - Status: Pending verification
 
 ---
 
