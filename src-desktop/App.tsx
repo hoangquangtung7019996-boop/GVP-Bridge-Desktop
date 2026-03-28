@@ -4,7 +4,7 @@
  */
 
 import { createSignal, onMount } from 'solid-js';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import PromptInput from './components/PromptInput';
 import StatusBar from './components/StatusBar';
 
