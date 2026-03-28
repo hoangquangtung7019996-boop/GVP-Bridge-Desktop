@@ -1,0 +1,31 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="512" cy="512" r="480" fill="#1a1a1a"/>
+  
+  <!-- Outer ring -->
+  <circle cx="512" cy="512" r="440" stroke="#ef4444" stroke-width="16" fill="none"/>
+  
+  <!-- Bridge/Connection design -->
+  <!-- Left node (Extension) -->
+  <circle cx="320" cy="512" r="80" fill="#ef4444"/>
+  <circle cx="320" cy="512" r="50" fill="#1a1a1a"/>
+  
+  <!-- Right node (Desktop) -->
+  <circle cx="704" cy="512" r="80" fill="#ef4444"/>
+  <circle cx="704" cy="512" r="50" fill="#1a1a1a"/>
+  
+  <!-- Connection bridge -->
+  <rect x="360" y="490" width="304" height="44" rx="8" fill="#ef4444"/>
+  
+  <!-- Data flow indicators -->
+  <circle cx="400" cy="512" r="12" fill="#fff"/>
+  <circle cx="480" cy="512" r="12" fill="#fff"/>
+  <circle cx="560" cy="512" r="12" fill="#fff"/>
+  <circle cx="640" cy="512" r="12" fill="#fff"/>
+  
+  <!-- GVP text -->
+  <text x="512" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#f4f4f5">GVP</text>
+  
+  <!-- Bridge subtitle -->
+  <text x="512" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" fill="#a3a3a3">BRIDGE</text>
+</svg>

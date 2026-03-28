@@ -17,9 +17,6 @@
       },
       "window": {
         "all": true
-      },
-      "event": {
-        "all": true
       }
     },
     "windows": [
