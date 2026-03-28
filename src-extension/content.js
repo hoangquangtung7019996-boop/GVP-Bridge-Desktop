@@ -12,10 +12,38 @@ let lastUrl = window.location.href;
 let urlCheckInterval = null;
 
 /**
+ * Debug logger with timestamps
+ */
+function debug(...args) {
+  const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+  console.log(`[${timestamp}] [GVP Bridge]`, ...args);
+}
+
+/**
+ * Send status update to popup
+ */
+function sendStatusUpdate(status = {}) {
+  chrome.runtime.sendMessage({
+    type: 'status_update',
+    connected: wsClient.isConnected(),
+    statusText: wsClient.isConnected() ? 'Connected' : 'Disconnected',
+    desktopStatus: status.desktopStatus || 'Unknown',
+    lastAction: lastAction,
+    url: window.location.href,
+    log: status.log,
+    logType: status.logType || 'info'
+  }).catch(() => {});
+}
+
+let lastAction = 'None';
+
+/**
  * Initialize the extension
  */
 async function init() {
-  console.log('[GVP Bridge] Initializing...');
+  debug('=== INITIALIZING ===');
+  debug('URL:', window.location.href);
+  debug('User Agent:', navigator.userAgent.substring(0, 80));
 
   // Only run on Grok
   if (!isOnGrok()) {
@@ -75,11 +103,13 @@ async function handlePromptResponse(payload) {
   const { prompt, imageId } = payload;
 
   if (!prompt) {
-    console.error('[GVP Bridge] No prompt in response');
+    debug('No prompt in response');
+    lastAction = 'Error: No prompt';
     return;
   }
 
-  console.log('[GVP Bridge] Received prompt for image:', imageId);
+  debug('Received prompt for image:', imageId);
+  lastAction = `Injecting prompt (${prompt.length} chars)`;
 
   // Inject and submit with retries and async flow
   const result = await injectAndSubmitAsync(prompt);
@@ -177,5 +207,43 @@ if (document.readyState === 'loading') {
 // Cleanup on page unload
 window.addEventListener('beforeunload', cleanup);
 
+// Listen for messages from popup/background
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  debug('Received message:', message.type);
+  
+  switch (message.type) {
+    case 'get_status':
+      sendResponse({
+        connected: wsClient.isConnected(),
+        desktopStatus: wsClient.isConnected() ? 'Connected (1)' : 'Disconnected',
+        lastAction: lastAction,
+        url: window.location.href
+      });
+      break;
+      
+    case 'force_connect':
+      debug('Force connect requested');
+      wsClient.connect().then(connected => {
+        sendStatusUpdate({
+          log: connected ? 'Connected!' : 'Connection failed',
+          logType: connected ? 'success' : 'error'
+        });
+      });
+      sendResponse({ received: true });
+      break;
+      
+    case 'activate':
+      debug('Activate command received');
+      checkCurrentUrl();
+      sendResponse({ received: true });
+      break;
+      
+    default:
+      sendResponse({ unknown: true });
+  }
+  
+  return true;
+});
+
 // Export for testing
-export { init, handleUrlChange, handleMessage };
+export { init, handleUrlChange, handleMessage, debug, sendStatusUpdate };

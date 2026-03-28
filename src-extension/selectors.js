@@ -6,7 +6,7 @@
 // URL patterns for detecting post view
 export const URL_PATTERNS = {
   POST_VIEW: /\/imagine\/post\/([a-f0-9-]+)/,
-  GROK_BASE: /x\.com\/i\/grok/
+  GROK_BASE: /grok\.com/
 };
 
 // DOM selectors for Grok's UI
