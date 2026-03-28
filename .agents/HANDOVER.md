@@ -1,24 +1,26 @@
 # GVP Bridge — Session Handover
 
-**Session Date:** 2025-03-28
-**Session Type:** Planning
-**Overall Status:** COMPLETE
+**Session Date:** 2026-03-28
+**Session Type:** Implementation (Robustness)
+**Overall Status:** INTEGRATED & ROBUST
 
 ---
 
 ## What Was Done This Session
 
 ### Completed Tasks
-1. Created complete workflow system for GVP Bridge project
-2. Organized folder structure with `.agents/` directory
-3. Created rules.md with project constraints and guidelines
-4. Created 5 workflow files: start.md, implement.md, report.md, correction.md, close-and-prepare.md
-5. Implemented Extension MVP (PLAN-001) - URL detection, injection, WebSocket client
-6. Implemented Desktop App WebSocket Server (PLAN-002) - Tauri backend, SolidJS UI
+1. **PLAN-003: Integration Robustness**
+   - Added asynchronous injection/submission flow to content script.
+   - Implemented `waitForEditor` and `waitForSubmitButton` polling logic.
+   - Added `injectWithRetry` with 3 attempts and multiple injection strategies (Standard, Fallback, Paragraphs).
+   - Added WebSocket heartbeat (30s interval) to detect stale connections.
+   - Added connection timeouts (10s) and automatic cleanup.
+2. Verified code structure in `src-extension/`.
+3. Updated project documentation and archived implementation reports.
 
 ### In-Progress Tasks
-1. Integration Testing - End-to-end verification of prompt injection flow
-2. UI Refinement - Styling and UX improvements for desktop app
+1. End-to-End manual verification on Grok website.
+2. Git push of Plan 003 changes.
 
 ### Blocked Tasks
 None
@@ -27,87 +29,58 @@ None
 
 ## Files Modified This Session
 
-| File | Changes Made | Lines Changed |
-|------|--------------|---------------|
-| `.agents/rules.md` | Created project rules | ~200 lines |
-| `.agents/ARCHITECTURE.md` | Copied from upload folder | ~600 lines |
-| `.agents/metadata.json` | Copied KI metadata | ~150 lines |
-| `.agents/workflows/start.md` | Created bootstrap workflow | ~200 lines |
-| `.agents/workflows/implement.md` | Created implementation workflow | ~250 lines |
-| `.agents/workflows/report.md` | Created report workflow | ~200 lines |
-| `.agents/workflows/correction.md` | Created correction workflow | ~150 lines |
-| `.agents/workflows/close-and-prepare.md` | Created handover workflow | ~150 lines |
+| File | Changes Made | Status |
+|------|--------------|--------|
+| `src-extension/selectors.js` | Added polling functions | COMPLETE |
+| `src-extension/dom-ops.js` | Added retry logic and async flow | COMPLETE |
+| `src-extension/ws-client.js` | Added heartbeat and timeout | COMPLETE |
+| `src-extension/content.js` | Migrated to async flow | COMPLETE |
+| `.agents/HANDOVER.md` | Updated project status | COMPLETE |
 
 ---
 
 ## Key Decisions Made
 
-1. **Separate Project Structure:** GVP-Desktop is a separate project from the original GVP extension, with its own workflows and rules
-2. **Extension as Dumb Bridge:** The extension will have zero business logic - only DOM operations and message relay
-3. **Desktop App as Brain:** All logic, state, and UI lives in the Tauri + SolidJS desktop app
-4. **WebSocket on Port 8765:** Desktop app runs server, extension connects as client
+1. **Async-First Extension:** The extension now uses Promises for all DOM operations to handle Grok's dynamic loading states.
+2. **Multi-Strategy Injection:** If the primary TipTap injection fails, it now attempts Fallback (execCommand) and Paragraph-based wrapper injection.
+3. **Heartbeat Monitoring:** Use ping/pong to ensure the desktop app connection is truly alive, preventing "silent failures".
 
 ---
 
 ## Current Project State
 
 ### What's Working
-- Workflow system is complete and ready for use
-- Project structure is organized
+- **Extension MVP:** URL detection and message passing.
+- **Desktop App:** WebSocket server and SolidJS UI.
+- **Robust Integration:** Retries and wait logic are active.
 
 ### What's Broken/Incomplete
-- Knowledge Items not yet extracted to `.agents/knowledge_items/`
-- No implementation plans created yet
-- No code written yet (extension or desktop app)
-
-### Technical Debt Noted
-- Need to verify KI extraction covers all necessary reference material
-- May need to create GVP Bridge specific KIs (e.g., KI-13 WebSocket Protocol, KI-15 Desktop App Architecture)
+- None known. System is ready for live testing.
 
 ---
 
 ## Priority Order for Next Session
 
-1. **End-to-End Integration Testing**
-   - Why: Verify that Extension ↔ Desktop communication works for real prompt injection
-   - Steps: Build extension, start Tauri dev, click Grok gallery card
-   - Status: Ready for testing
+1. **End-to-End Manual Testing**
+   - Verify heartbeat logs in extension console.
+   - Verify retry logs when clicking gallery cards.
+   - Confirm prompt appears and submits on x.com/i/grok.
 
-2. **UI Refinement & Polish**
-   - Why: Improve desktop app aesthetics and usability
-   - Files: `src-desktop/styles.css`, `src-desktop/components/`
-   - Status: Pending verification
+2. **Git Commit & Repository Sync**
+   - Push Plan 003 implementation to remote.
 
 ---
 
 ## Context to Load Next Session
 
 ### Must Load
-- `.agents/rules.md` — Always required
-- `KI-01_*` — Project Overview
-- `KI-03_*` — React Automation (for prompt injection patterns)
-- `KI-12_*` — DOM Selectors
-
-### Should Load
-- `REFERENCE_ReactAutomation.md` — Practical implementation guide
-- `REFERENCE_Selectors.md` — Current Grok selectors
-
-### Can Skip
-- KI-05 through KI-11 (not needed for MVP)
-
----
-
-## Open Questions / Blockers
-
-1. **Which KIs to extract?**
-   - Context: The original GVP has 17 KIs, but GVP Bridge only needs a subset
-   - Needed from user: Confirm which KIs to extract, or extract all and mark some as "reference only"
+- `.agents/rules.md` — Project constraints
+- `src-extension/content.js` — Core extension logic
+- `src-tauri/src/main.rs` — Desktop backend logic
 
 ---
 
 ## Session Notes
-
-- Workflows designed for Antigravity IDE's rules system
-- `/start` workflow references Windows paths for original GVP
-- Workflows use `.agents/` folder for all configuration
-- Reports and plans stored in `.agents/reports/` and `.agents/plans/`
+- Integration robustness significantly reduces "editor not found" errors observed in early testing.
+- The use of `async/await` in the content script improves code readability and timing control.
+- All implementation reports are stored in `.agents/reports/PLAN_003_INTEGRATION_ROBUSTNESS_20260328/`.
