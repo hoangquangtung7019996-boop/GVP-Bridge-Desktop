@@ -1,3 +1,148 @@
+# Implementation Plan — Migrate to Tauri v2
+
+**Plan ID:** PLAN-006
+**Feature:** Upgrade from Tauri v1 to Tauri v2
+**Target:** `GVP-Bridge-Desktop`
+**Date:** 2025-03-28
+**Depends On:** PLAN-005
+**Priority:** HIGH - Required for Windows 10 LTSC compatibility
+
+---
+
+## Overview
+
+The current Tauri v1 implementation fails on Windows 10 IoT Enterprise LTSC with error 216. A fresh Tauri v2 test app works perfectly. This plan migrates the existing project to Tauri v2.
+
+**Total Steps:** 7
+**Estimated Time:** 30 minutes
+
+---
+
+## Why Tauri v2?
+
+| Issue | Tauri v1 | Tauri v2 |
+|-------|----------|----------|
+| WebView2 on LTSC | Error 216 | Works |
+| webview2-com | v0.19 | v0.38 |
+| Better async handling | No | Yes |
+| Windows 10 LTSC | Issues | Compatible |
+
+---
+
+## STEP 1 — Update package.json
+
+**File:** `package.json`
+**Action:** REPLACE ENTIRE FILE
+
+```json
+{
+  "name": "gvp-quick",
+  "version": "0.1.0",
+  "description": "GVP Bridge Desktop - WebSocket bridge for Grok automation",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "solid-js": "^1.8.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@tauri-apps/api": "^2.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-solid": "^2.8.0",
+    "typescript": "^5.3.0"
+  }
+}
+```
+
+---
+
+## STEP 2 — Update Cargo.toml
+
+**File:** `src-tauri/Cargo.toml`
+**Action:** REPLACE ENTIRE FILE
+
+```toml
+[package]
+name = "gvp-quick"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
+parking_lot = "0.12"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+```
+
+---
+
+## STEP 3 — Update tauri.conf.json (v2 format)
+
+**File:** `src-tauri/tauri.conf.json`
+**Action:** REPLACE ENTIRE FILE
+
+```json
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "GVP Bridge",
+  "version": "0.1.0",
+  "identifier": "com.gvp.bridge",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "GVP Bridge",
+        "width": 400,
+        "height": 300,
+        "resizable": true,
+        "alwaysOnTop": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
+```
+
+---
+
+## STEP 4 — Update main.rs for Tauri v2
+
+**File:** `src-tauri/src/main.rs`
+**Action:** REPLACE ENTIRE FILE
+
+```rust
 // GVP Bridge - Desktop App Backend (Tauri v2)
 // WebSocket server + Tauri commands
 
@@ -10,7 +155,7 @@ use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tauri::{Manager, Emitter};
+use tauri::Manager;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::{accept_async, tungstenite::Message};
 use futures_util::{SinkExt, StreamExt};
@@ -102,7 +247,7 @@ async fn handle_connection(
         s.last_status = format!("Connected ({})", s.connection_count);
     }
 
-    // Emit connection event to frontend (Tauri v2 uses .emit)
+    // Emit connection event to frontend
     let _ = app_handle.emit("ws-connection", {
         let s = state.lock();
         format!("Connected ({})", s.connection_count)
@@ -139,8 +284,8 @@ async fn handle_connection(
 
                                 // Store image ID
                                 {
-                                     let mut s = state.lock();
-                                     s.last_image_id = image_id.to_string();
+                                    let mut s = state.lock();
+                                    s.last_image_id = image_id.to_string();
                                 }
 
                                 // Get current prompt
@@ -294,18 +439,16 @@ fn chrono_timestamp() -> u64 {
 // MAIN (Tauri v2 style)
 // ============================================================================
 
-#[tokio::main]
-async fn main() {
+fn main() {
     // Initialize shared state
     let state = Arc::new(Mutex::new(AppState::default()));
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .manage(state.clone())
-        .setup(|app| {
-            let app_handle = app.handle().clone();
-            let state = app.state::<Arc<Mutex<AppState>>>();
-            let state_clone = state.inner().clone();
+        .setup(move |app| {
+            let app_handle = app.handle();
+            let state_clone = state.clone();
 
             // Start WebSocket server in background
             tokio::spawn(async move {
@@ -323,3 +466,85 @@ async fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+```
+
+---
+
+## STEP 5 — Update build.rs
+
+**File:** `src-tauri/build.rs`
+**Action:** REPLACE ENTIRE FILE
+
+```rust
+fn main() {
+    tauri_build::build()
+}
+```
+
+---
+
+## STEP 6 — Clean and Reinstall
+
+**Action:** RUN TERMINAL COMMANDS
+
+```powershell
+cd "A:\Tools n Programs\GVP-Desktop"
+
+# Delete old dependencies and build cache
+Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force src-tauri\target -ErrorAction SilentlyContinue
+Remove-Item package-lock.json -ErrorAction SilentlyContinue
+
+# Reinstall dependencies
+npm install
+
+# Run the app
+npm run tauri dev
+```
+
+---
+
+## STEP 7 — Verify
+
+**Action:** RUN AND VERIFY
+
+After running `npm run tauri dev`, verify:
+- [ ] No compilation errors
+- [ ] Window opens
+- [ ] Console shows: `[GVP Desktop] WebSocket server started on 127.0.0.1:8765`
+
+---
+
+## VERIFICATION CHECKLIST
+
+| Check | Expected |
+|-------|----------|
+| `package.json` uses tauri v2 | YES |
+| `Cargo.toml` uses tauri v2 | YES |
+| `tauri.conf.json` v2 format | YES |
+| `main.rs` v2 API style | YES |
+| `npm install` succeeds | YES |
+| `npm run tauri dev` launches | YES |
+| WebSocket on :8765 | YES |
+
+---
+
+## KEY CHANGES FROM v1 TO v2
+
+| Component | v1 | v2 |
+|-----------|----|----|
+| Config schema | No schema | `$schema` property |
+| Config format | `build.devPath` | `build.devUrl` |
+| Config format | `build.distDir` | `build.frontendDist` |
+| Config format | `package` root | `productName`, `version`, `identifier` at root |
+| Config format | `tauri.windows` | `app.windows` |
+| Config format | `tauri.allowlist` | Removed (plugins handle this) |
+| Shell plugin | Built-in | `tauri-plugin-shell` |
+| Events | `emit_all` | `emit` |
+
+---
+
+## END OF PLAN
+
+**STOP after completing all 7 steps.**
+**Produce Work Report as specified in `/report` workflow.**
