@@ -348,20 +348,61 @@
     return true;
   }
 
-  async function clickSubmit(button) {
-    debug('Clicking submit button');
-    
-    button.click();
-    
-    // Also try dispatching click event
-    button.dispatchEvent(new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    }));
-    
-    debug('Submit clicked');
+  /**
+   * React-compatible click that fires synthetic pointer/mouse events WITHOUT native .click()
+   * Copied from OG extension's ReactAutomation.reactClick()
+   * CRITICAL: Do NOT call button.click() - it causes double-fire with synthetic events!
+   */
+  function reactClick(element, elementName = 'element') {
+    if (!element) {
+      debug(`[reactClick] Cannot click ${elementName} - element not found`);
+      return false;
+    }
+
+    debug(`[reactClick] Clicking ${elementName}...`);
+
+    // Focus element first
+    try {
+      if (typeof element.focus === 'function') {
+        element.focus({ preventScroll: true });
+      }
+    } catch (_) {
+      // Ignore focus errors
+    }
+
+    // Event dispatcher helper
+    const dispatch = (type, EventCtor = MouseEvent, extraInit = {}) => {
+      const init = {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 0,
+        ...extraInit
+      };
+      element.dispatchEvent(new EventCtor(type, init));
+    };
+
+    // Full pointer event sequence (matches OG extension exactly)
+    if (typeof PointerEvent === 'function') {
+      dispatch('pointerdown', PointerEvent);
+    }
+    dispatch('mousedown');
+    if (typeof PointerEvent === 'function') {
+      dispatch('pointerup', PointerEvent);
+    }
+    dispatch('mouseup');
+    dispatch('click');  // SINGLE synthetic click - NO native .click()!
+
+    debug(`[reactClick] Clicked ${elementName}`);
     return true;
+  }
+
+  /**
+   * Submit button click wrapper using reactClick
+   */
+  function clickSubmit(button) {
+    debug('[clickSubmit] Calling reactClick on submit button');
+    return reactClick(button, 'Submit Button');
   }
 
   /**
@@ -462,8 +503,10 @@
       // Wait for React to process
       await new Promise(r => setTimeout(r, 100));
       
-      // Submit
-      const submitted = await clickSubmit(button);
+      // Submit (using reactClick - NO native .click(), sync call)
+      debug('[injectAndSubmitAsync] About to click submit button...');
+      const submitted = clickSubmit(button);
+      debug('[injectAndSubmitAsync] Submit clicked, result:', submitted);
       
       // Return to gallery after submit (500ms delay to match OG extension)
       let returnedToGallery = false;
@@ -484,6 +527,12 @@
   let lastUrl = window.location.href;
   let urlCheckInterval = null;
   let lastAction = 'None';
+  
+  // === DEDUPLICATION & LOCKING (Fix for multiple API calls) ===
+  let lastPromptedImageId = null;        // Last imageId we requested prompt for
+  let isProcessingPrompt = false;        // Lock while processing
+  let lastPromptRequestTime = 0;         // Timestamp of last request
+  const PROMPT_REQUEST_COOLDOWN = 2000;  // 2 second cooldown between requests
 
   function sendStatusUpdate(status = {}) {
     chrome.runtime.sendMessage({
@@ -551,62 +600,124 @@
     const { prompt, imageId } = payload;
 
     if (!prompt) {
-      debug('No prompt in response');
+      debug('[handlePromptResponse] No prompt in response');
       lastAction = 'Error: No prompt';
       return;
     }
 
-    debug('Received prompt for image:', imageId);
+    // LOCKING: Prevent multiple concurrent prompt processing
+    if (isProcessingPrompt) {
+      debug('[handlePromptResponse] BLOCKED - already processing another prompt');
+      return;
+    }
+    
+    isProcessingPrompt = true;
+    debug('[handlePromptResponse] LOCK ACQUIRED for image:', imageId);
     lastAction = `Injecting prompt (${prompt.length} chars)`;
 
-    const result = await injectAndSubmitAsync(prompt);
+    try {
+      const result = await injectAndSubmitAsync(prompt);
 
-    lastAction = result.submitted 
-      ? (result.returnedToGallery ? 'Submitted, returned to gallery!' : 'Submitted (stayed on post)')
-      : `Error: ${result.error || 'Unknown'}`;
+      lastAction = result.submitted 
+        ? (result.returnedToGallery ? 'Submitted, returned to gallery!' : 'Submitted (stayed on post)')
+        : `Error: ${result.error || 'Unknown'}`;
 
-    wsClient.sendStatus('injected', {
-      success: result.injected && result.submitted,
-      returnedToGallery: result.returnedToGallery,
-      imageId,
-      error: result.error,
-      attempts: result.attempts
-    });
+      wsClient.sendStatus('injected', {
+        success: result.injected && result.submitted,
+        returnedToGallery: result.returnedToGallery,
+        imageId,
+        error: result.error,
+        attempts: result.attempts
+      });
+    } finally {
+      // Always release lock
+      isProcessingPrompt = false;
+      debug('[handlePromptResponse] LOCK RELEASED');
+      
+      // Clear lastPromptedImageId after a delay (allow re-processing if user navigates back)
+      setTimeout(() => {
+        if (lastPromptedImageId === imageId) {
+          lastPromptedImageId = null;
+          debug('[handlePromptResponse] Cleared lastPromptedImageId');
+        }
+      }, 1000);
+    }
   }
 
+  /**
+   * Debounced URL change handler to prevent multiple rapid calls
+   * Uses timestamp-based debouncing at entry point
+   */
+  let urlChangeDebounceTimer = null;
+  
   function startUrlMonitoring() {
+    // Only use setInterval polling - it's the most reliable
+    // Remove duplicate listeners from popstate/pushState/replaceState
     urlCheckInterval = setInterval(() => {
       const currentUrl = window.location.href;
       if (currentUrl !== lastUrl) {
-        debug('URL changed:', currentUrl);
+        debug('[URL Monitor] URL changed:', currentUrl);
         lastUrl = currentUrl;
-        handleUrlChange(currentUrl);
+        debouncedHandleUrlChange(currentUrl);
       }
-    }, 500);
+    }, 200);  // Faster polling (200ms) but with debounce protection
 
-    window.addEventListener('popstate', () => handleUrlChange(window.location.href));
-
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
-
-    history.pushState = function(...args) {
-      originalPushState.apply(history, args);
-      handleUrlChange(window.location.href);
-    };
-
-    history.replaceState = function(...args) {
-      originalReplaceState.apply(history, args);
-      handleUrlChange(window.location.href);
-    };
+    // Keep popstate for browser back/forward, but debounced
+    window.addEventListener('popstate', () => {
+      debug('[URL Monitor] popstate event');
+      debouncedHandleUrlChange(window.location.href);
+    });
   }
 
+  /**
+   * Debounce wrapper for handleUrlChange
+   * Prevents multiple calls within 300ms window
+   */
+  function debouncedHandleUrlChange(url) {
+    clearTimeout(urlChangeDebounceTimer);
+    urlChangeDebounceTimer = setTimeout(() => {
+      handleUrlChange(url);
+    }, 100);  // 100ms debounce
+  }
+
+  /**
+   * Handle URL change with deduplication and locking
+   */
   function handleUrlChange(url) {
     const imageId = extractImageIdFromUrl();
+    
+    // Always notify desktop of URL change (for status display)
     wsClient.notifyUrlChange(url, imageId);
 
+    // DEDUPLICATION CHECK: Only request prompt if:
+    // 1. We're on a post view with an imageId
+    // 2. We're not already processing a prompt
+    // 3. This imageId is different from the last one we requested
+    // 4. Enough time has passed since last request (cooldown)
+    const now = Date.now();
+    
     if (isOnPostView() && imageId) {
-      debug('On post view, requesting prompt for:', imageId);
+      // Check all deduplication conditions
+      if (isProcessingPrompt) {
+        debug('[handleUrlChange] BLOCKED - already processing prompt');
+        return;
+      }
+      
+      if (imageId === lastPromptedImageId) {
+        debug('[handleUrlChange] BLOCKED - already requested this imageId:', imageId);
+        return;
+      }
+      
+      if (now - lastPromptRequestTime < PROMPT_REQUEST_COOLDOWN) {
+        debug('[handleUrlChange] BLOCKED - cooldown active, ms since last:', now - lastPromptRequestTime);
+        return;
+      }
+      
+      // All checks passed - request the prompt
+      debug('[handleUrlChange] Requesting prompt for:', imageId);
       lastAction = `Requesting prompt for ${imageId}`;
+      lastPromptedImageId = imageId;
+      lastPromptRequestTime = now;
       wsClient.requestPrompt(imageId);
     }
   }

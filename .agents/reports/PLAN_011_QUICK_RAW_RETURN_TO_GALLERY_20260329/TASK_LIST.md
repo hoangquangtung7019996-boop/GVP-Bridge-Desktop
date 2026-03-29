@@ -12,10 +12,13 @@
 
 ---
 
-## CORRECTION TASKS
+## CORRECTION TASKS (011b — Double Click & Multiprompt Fix)
 
-[x] Correction 1: Simplify simulateEscape() to match OG extension (document only, no composed)
-[x] Correction 2: Update returnToGallery() with 500ms delay and sync simulateEscape()
-[x] Correction 3: Update injectAndSubmitAsync() call to returnToGallery()
+[x] Correction 1: Add state variables for deduplication/locking in content.bundle.js
+[x] Correction 2: Replace clickSubmit() with reactClick() (synthetic only)
+[x] Correction 3: Overhaul URL monitoring (polling + popstate + debouncing)
+[x] Correction 4: Implement handleUrlChange() with deduplication logic
+[x] Correction 5: Add locking/try-finally to handlePromptResponse()
+[x] Correction 6: Update injectAndSubmitAsync() for sync clickSubmit()
 
-Total corrections: 3
+Total corrections: 6
