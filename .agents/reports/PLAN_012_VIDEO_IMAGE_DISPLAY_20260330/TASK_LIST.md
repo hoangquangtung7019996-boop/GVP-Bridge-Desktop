@@ -1,0 +1,9 @@
+- [x] Task 1: Add Toggle Switch to PromptInput.tsx
+- [x] Task 2: Create GalleryPanel.tsx component
+- [x] Task 3: Update AppState and Commands in main.rs
+- [x] Task 4: Extend WebSocket message parsing in main.rs
+- [x] Task 5: Implement fetch/XHR interception in content.bundle.js
+- [x] Task 6: Modify submission behavior in content.bundle.js
+- [x] Task 7: Handle Generation Results in main.rs and emit event
+- [x] Task 8: Update App.tsx to include GalleryPanel and listen for events
+- [x] Task 9: Add CSS styles for GalleryPanel and Toggle

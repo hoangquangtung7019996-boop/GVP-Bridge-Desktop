@@ -509,9 +509,13 @@
       debug('[injectAndSubmitAsync] Submit clicked, result:', submitted);
       
       // Return to gallery after submit (500ms delay to match OG extension)
+      // BUT ONLY IF we are NOT in Preview Mode (intercepting)
+      // In preview mode, we stay on the page to watch the generation
       let returnedToGallery = false;
-      if (submitted) {
+      if (submitted && !interceptGenerations) {
         returnedToGallery = await returnToGallery();
+      } else if (submitted && interceptGenerations) {
+        debug('[injectAndSubmitAsync] Preview Mode active - skipping return to gallery');
       }
       
       return { injected, submitted, returnedToGallery, attempt };
@@ -533,6 +537,7 @@
   let isProcessingPrompt = false;        // Lock while processing
   let lastPromptRequestTime = 0;         // Timestamp of last request
   const PROMPT_REQUEST_COOLDOWN = 2000;  // 2 second cooldown between requests
+  let interceptGenerations = false;      // Whether to intercept and preview generations
 
   function sendStatusUpdate(status = {}) {
     chrome.runtime.sendMessage({
@@ -575,6 +580,9 @@
     // Start URL monitoring
     startUrlMonitoring();
 
+    // Start Fetch Interception (Proxy)
+    proxyFetch();
+
     // Check current URL state
     checkCurrentUrl();
 
@@ -597,7 +605,11 @@
   }
 
   async function handlePromptResponse(payload) {
-    const { prompt, imageId } = payload;
+    const { prompt, imageId, previewMode } = payload;
+
+    // Update interception state from desktop
+    interceptGenerations = !!previewMode;
+    debug('[handlePromptResponse] Intercept generations:', interceptGenerations);
 
     if (!prompt) {
       debug('[handlePromptResponse] No prompt in response');
@@ -781,6 +793,50 @@
   }
 
   window.addEventListener('beforeunload', cleanup);
+
+  /**
+   * Proxy the global fetch function to intercept generation responses
+   */
+  function proxyFetch() {
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] instanceof URL ? args[0].href : (args[0] && args[0].url));
+      
+      const response = await originalFetch.apply(this, args);
+      
+      if (interceptGenerations && isGenerationUrl(url)) {
+        // Clone response to read body without consuming it
+        const cloned = response.clone();
+        cloned.json().then(data => {
+          handleGenerationResponse(url, data);
+        }).catch(e => debug('Failed to parse generation JSON:', e));
+      }
+      
+      return response;
+    };
+    debug('Fetch proxy installed');
+  }
+
+  function isGenerationUrl(url) {
+    if (!url) return false;
+    // Grok's generation endpoints
+    return url.includes('/rest/app/grok/upscale') || 
+           url.includes('/rest/app/grok/generate') ||
+           url.includes('/rest/app/grok/get_video_generation_result');
+  }
+
+  function handleGenerationResponse(url, data) {
+    debug('Intercepted generation response from:', url);
+    // Send to desktop via WS
+    wsClient.send({
+      type: 'generation_result',
+      payload: {
+        url,
+        data,
+        timestamp: Date.now()
+      }
+    });
+  }
 
   debug('Content script loaded');
 

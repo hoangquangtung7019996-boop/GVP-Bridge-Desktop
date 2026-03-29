@@ -26,6 +26,7 @@ pub struct AppState {
     pub last_status: String,
     pub last_url: String,
     pub last_image_id: String,
+    pub preview_mode: bool,
 }
 
 impl Default for AppState {
@@ -36,6 +37,7 @@ impl Default for AppState {
             last_status: "Ready".to_string(),
             last_url: String::new(),
             last_image_id: String::new(),
+            preview_mode: false,
         }
     }
 }
@@ -80,6 +82,22 @@ fn clear_prompt(state: tauri::State<Arc<Mutex<AppState>>>) -> Result<(), String>
     s.current_prompt.clear();
     s.last_status = "Prompt cleared".to_string();
     Ok(())
+}
+
+/// Set preview mode
+#[tauri::command]
+fn set_preview_mode(enabled: bool, state: tauri::State<Arc<Mutex<AppState>>>) -> Result<bool, String> {
+    let mut s = state.lock();
+    s.preview_mode = enabled;
+    println!("[GVP Desktop] Preview mode: {}", enabled);
+    Ok(enabled)
+}
+
+/// Get preview mode
+#[tauri::command]
+fn get_preview_mode(state: tauri::State<Arc<Mutex<AppState>>>) -> Result<bool, String> {
+    let s = state.lock();
+    Ok(s.preview_mode)
 }
 
 // ============================================================================
@@ -154,7 +172,11 @@ async fn handle_connection(
                                     "type": "prompt_response",
                                     "payload": {
                                         "prompt": prompt,
-                                        "imageId": image_id
+                                        "imageId": image_id,
+                                        "previewMode": {
+                                            let s = state.lock();
+                                            s.preview_mode
+                                        }
                                     },
                                     "timestamp": chrono_timestamp()
                                 });
@@ -216,6 +238,13 @@ async fn handle_connection(
                             // Pong response
                             "pong" => {
                                 println!("[GVP Desktop] Received pong");
+                            }
+
+                            // Extension reports generation result
+                            "generation_result" => {
+                                println!("[GVP Desktop] Received generation_result");
+                                // Forward directly to frontend
+                                let _ = app_handle.emit("generation-result", payload);
                             }
 
                             _ => {
@@ -319,6 +348,8 @@ async fn main() {
             get_prompt,
             get_status,
             clear_prompt,
+            set_preview_mode,
+            get_preview_mode,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

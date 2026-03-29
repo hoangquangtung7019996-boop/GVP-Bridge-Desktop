@@ -1,19 +1,20 @@
 # GVP Bridge — Session Handover
 
-**Session Date:** 2026-03-29
-**Session Type:** Implementation / Correction / DevEx
-**Overall Status:** ✅ COMPLETE (Verification Pending)
+**Session Date:** 2026-03-30
+**Session Type:** Implementation
+**Overall Status:** COMPLETE
 
 ---
 
 ## What Was Done This Session
 
 ### Completed Tasks
-1. **Automation Overhaul (PLAN_011b)**: Fixed the "Multiple API calls" bug by implementing a robust deduplication and locking system in `content.bundle.js`.
-2. **Synthetic Event Logic**: Migrated from native `.click()` to a full synthetic event sequence (`pointerdown`, `mousedown`, etc.) to ensure React reconciliation handles the submission correctly.
-3. **URL Monitoring Stabilization**: Switched to a single debounced entry point for URL detection, removing 4x redundant triggers.
-4. **Developer Experience**: Created `START_DEV.bat` in the root to enable a one-click launcher that supports hot-reloading (Vite HMR).
-5. **Escape Fix (PLAN_011a)**: Refined `simulateEscape` to dispatch only once to the `document`, preventing Grok from exiting the app entirely.
+1. **Video/Image Preview System (PLAN-012)**:
+   - Added a "Preview Mode" toggle to the desktop app.
+   - Created a responsive `GalleryPanel` component to display media.
+   - Implemented real-time `fetch` interception in the Chrome extension.
+   - Established WebSocket data flow for streaming generation results.
+   - Modified the automation flow to stay on the page during preview.
 
 ---
 
@@ -21,9 +22,12 @@
 
 | File | Changes Made | Lines Changed |
 |------|--------------|---------------|
-| `src-extension/content.bundle.js` | Deduplication, locking, synthetic clicks, URL monitor. | ~200 lines |
-| `A:\Tools n Programs\GVP-Desktop\START_DEV.bat` | Created developer launcher script. | 3 lines |
-| `.agents/CHANGELOG.md` | Updated with session 0.3.0 summary. | 22 lines |
+| `src-desktop/components/PromptInput.tsx` | Added Preview Mode toggle and signal | ~50 lines |
+| `src-desktop/components/GalleryPanel.tsx` | **NEW** Gallery UI component | ~100 lines |
+| `src-desktop/App.tsx` | Added event listeners for results | ~80 lines |
+| `src-tauri/src/main.rs` | Added command handlers and WS logic | ~60 lines |
+| `src-extension/content.bundle.js` | Implemented Fetch Proxy and interceptor | ~120 lines |
+| `src-desktop/styles.css` | Added gallery and toggle styles | ~170 lines |
 
 ---
 
@@ -31,47 +35,45 @@
 
 | Folder | Plan | Status |
 |--------|------|--------|
-| `.agents/reports/PLAN_011_QUICK_RAW_RETURN_TO_GALLERY_20260329/` | Automation Stability | ✅ Complete |
+| `.agents/reports/PLAN_012_VIDEO_IMAGE_DISPLAY_20260330/` | Video/Image Display | ✅ Complete |
 
 ---
 
 ## Key Decisions Made
 
-1. **Synthetic-Only Clicks**: Decisions was made to NEVER use `element.click()` alongside synthetic events as it causes double-triggers in ProseMirror/TipTap.
-2. **Polling over Patching**: Switched back to polling (200ms) with debouncing as the primary URL monitoring mechanism because patching `history.pushState` often conflicts with React routers and third-party extensions.
+1. **Synthetic Fetch Interception:** Chose a global `fetch` proxy over higher-level DOM observation to ensure we catch the raw media URLs as soon as Grok's API returns them, minimizing latency.
+2. **Simplified Media Management:** In this phase, generations are stored in memory (Vite/SolidJS signals) and not yet persisted to a local database. This keeps the initial preview system lightweight.
 
 ---
 
 ## Current Project State
 
 ### What's Working
-- Instant status updates in Popup UI.
-- One-click HMR developer experience.
-- Single-request prompt automation (tested via logic, pending user verification).
-- Automated navigation (Return to gallery).
+- Full automation flow (Inject -> Submit -> Return to Gallery).
+- **NEW**: Preview Mode (Inject -> Submit -> Stay on Page -> Display Preview in Desktop).
+- WebSocket bridge with status reporting and media streaming.
 
 ### What's Broken/Incomplete
-- None known.
+- Generations are lost on app restart (No persistence yet).
 
 ---
 
 ## Priority Order for Next Session
 
-1. **Verification of 011b Overhaul**
-   - Why: Ensure "Cannot generate response to empty conversation" error is permanently resolved under real-world timing.
-   - Files to load: `.agents/reports/PLAN_011_QUICK_RAW_RETURN_TO_GALLERY_20260329/REPORT.md`
+1. **System Stability Verification**
+   - Why: Ensure the synthetic click and fetch proxy don't conflict with Grok's frequent UI updates.
+   - Plan: Run a series of manual tests with different prompt types.
 
-2. **Feature Expansion (if requested)**
-   - Why: System is now stable and ready for more complex automation.
+2. **Persistence (Upcoming)**
+   - Why: Users will want to save their intercepted generations.
 
 ---
 
 ## Context to Load Next Session
 
 ### Must Load
-- `.agents/rules.md` — Always required
-- `.agents/HANDOVER.md` — Previous status
-- `.agents/reports/PLAN_011_QUICK_RAW_RETURN_TO_GALLERY_20260329/REPORT.md` — Verification details
+- `.agents\rules.md` — Project guidelines
+- `.agents\reports\PLAN_012_VIDEO_IMAGE_DISPLAY_20260330\REPORT.md` — Verification details
 
 ---
 
@@ -82,4 +84,4 @@ None.
 ---
 
 ## Session Notes
-The system is now considerably more robust. The removal of the history API monkey patches and the move to a single debounced entry point resolves the most significant source of performance issues and state inconsistencies.
+The implementation went smoothly. The "Synthetic Click" and "Poll-based URL Monitoring" added in previous sessions proved to be a stable foundation for the new Preview Mode logic.

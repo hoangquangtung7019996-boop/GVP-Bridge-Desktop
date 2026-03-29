@@ -14,6 +14,7 @@ interface PromptInputProps {
 export default function PromptInput(props: PromptInputProps) {
     const [prompt, setPrompt] = createSignal('');
     const [isLoading, setIsLoading] = createSignal(false);
+    const [previewMode, setPreviewMode] = createSignal(false);
     let textareaRef: HTMLTextAreaElement | undefined;
 
     // Auto-resize textarea
@@ -56,6 +57,18 @@ export default function PromptInput(props: PromptInputProps) {
         }
     };
 
+    const handleTogglePreview = async () => {
+        const newState = !previewMode();
+        setPreviewMode(newState);
+        try {
+            await invoke('set_preview_mode', { enabled: newState });
+        } catch (error) {
+            console.error('Failed to toggle preview mode:', error);
+            // Revert on failure
+            setPreviewMode(!newState);
+        }
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
         // Ctrl/Cmd + Enter to set prompt
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -65,15 +78,17 @@ export default function PromptInput(props: PromptInputProps) {
     };
 
     onMount(() => {
-        // Load existing prompt on mount
-        invoke<string>('get_prompt')
-            .then(savedPrompt => {
-                if (savedPrompt) {
-                    setPrompt(savedPrompt);
-                    adjustHeight();
-                }
-            })
-            .catch(console.error);
+        // Load existing prompt and preview mode on mount
+        Promise.all([
+            invoke<string>('get_prompt'),
+            invoke<boolean>('get_preview_mode')
+        ]).then(([savedPrompt, savedPreviewMode]) => {
+            if (savedPrompt) {
+                setPrompt(savedPrompt);
+                adjustHeight();
+            }
+            setPreviewMode(savedPreviewMode);
+        }).catch(console.error);
     });
 
     return (
@@ -94,6 +109,14 @@ export default function PromptInput(props: PromptInputProps) {
                     {prompt().length} chars • Ctrl+Enter to save
                 </span>
                 <div class="prompt-buttons">
+                    <label class="preview-toggle" title="Intercept and display generations instead of auto-submitting">
+                        <input 
+                            type="checkbox" 
+                            checked={previewMode()} 
+                            onChange={handleTogglePreview} 
+                        />
+                        <span>Preview Mode</span>
+                    </label>
                     <button
                         class="btn btn-secondary"
                         onClick={handleClear}

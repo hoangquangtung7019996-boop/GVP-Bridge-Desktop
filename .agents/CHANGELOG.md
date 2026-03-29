@@ -63,6 +63,30 @@ All notable changes to the GVP Bridge project will be documented in this file.
 
 ---
 
+## [0.4.0] - 2026-03-30
+
+### Session Summary
+- Completed: 9 tasks (Video/Image Preview System)
+- Artifacts: 1 folder in .agents/reports/ (PLAN_012)
+- Files modified: 5
+
+### Added
+- **Preview Mode**: 
+  - Implementation of `previewMode` toggle in `PromptInput.tsx` with backend state persistence.
+  - New `GalleryPanel.tsx` component for displaying intercepted generations with support for videos and images.
+  - Integrated `GalleryPanel` into `App.tsx` with real-time event listeners.
+- **Fetch Interception**:
+  - Global `fetch` proxy in `content.bundle.js` to capture Grok API responses.
+  - Capture logic for `/upscale`, `/generate`, and `/get_video_generation_result` endpoints.
+  - Automatic streaming of captured media to the desktop app via WebSocket.
+
+### Changed
+- **Submission Workflow**: Modified `injectAndSubmitAsync` to skip the auto-return to gallery (ESC) when Preview Mode is active, ensuring the page stays visible for generation.
+- **WebSocket Protocol**: Extended `prompt_response` payload to include the active `previewMode` state.
+- **Desktop Styles**: Added comprehensive styling for the gallery grid and preview toggle.
+
+---
+
 ## Version History
 
 | Version | Date | Description |
