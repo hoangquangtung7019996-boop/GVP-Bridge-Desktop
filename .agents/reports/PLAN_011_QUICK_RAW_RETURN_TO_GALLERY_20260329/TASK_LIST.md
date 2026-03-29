@@ -12,5 +12,10 @@
 
 ---
 
-**Progress:** 3/3 (100%)
-**Last Updated:** 2026-03-29 14:04
+## CORRECTION TASKS
+
+[x] Correction 1: Simplify simulateEscape() to match OG extension (document only, no composed)
+[x] Correction 2: Update returnToGallery() with 500ms delay and sync simulateEscape()
+[x] Correction 3: Update injectAndSubmitAsync() call to returnToGallery()
+
+Total corrections: 3
