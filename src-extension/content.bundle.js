@@ -778,14 +778,41 @@
     
     debug('[sendDirectGenerationRequest] Payload:', JSON.stringify(payload, null, 2));
     
+    // Get Chrome version from navigator
+    const chromeVersion = navigator.userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/)?.[1] || '147.0.7727.24';
+    
+    // Build anti-bot headers to match browser's normal request
+    const headers = {
+      'accept': '*/*',
+      'accept-encoding': 'gzip, deflate, br, zstd',
+      'accept-language': 'en-US,en;q=0.9',
+      'content-type': 'application/json',
+      'origin': 'https://grok.com',
+      'priority': 'u=1, i',
+      'referer': window.location.href,
+      'sec-ch-ua': `"Google Chrome";v="${chromeVersion.split('.')[0]}", "Not.A/Brand";v="8", "Chromium";v="${chromeVersion.split('.')[0]}"`,
+      'sec-ch-ua-arch': '"x86"',
+      'sec-ch-ua-bitness': '"64"',
+      'sec-Ch-ua-full-version': `"${chromeVersion}"`,
+      'sec-ch-ua-full-version-list': `"Google Chrome";v="${chromeVersion}", "Not.A/Brand";v="8.0.0.0", "Chromium";v="${chromeVersion}"`,
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-model': '""',
+      'sec-ch-ua-platform': '"Windows"',
+      'sec-ch-ua-platform-version': '"10.0.0"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-origin',
+      'user-agent': navigator.userAgent,
+      'x-trace-id': traceId,
+      'x-xai-request-id': requestId
+    };
+    
+    debug('[sendDirectGenerationRequest] Headers:', JSON.stringify(headers, null, 2));
+    
     try {
       const response = await fetch('https://grok.com/rest/app-chat/conversations/new', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-trace-id': traceId,
-          'x-xai-request-id': requestId
-        },
+        headers: headers,
         credentials: 'include',  // Include cookies for auth
         body: JSON.stringify(payload)
       });
@@ -798,7 +825,6 @@
       }
       
       // The response is a stream - the fetch proxy will intercept it
-      // But we also need to handle the initial response
       debug('[sendDirectGenerationRequest] Request sent successfully, stream will be intercepted');
       lastAction = 'Preview: Generation started';
       
