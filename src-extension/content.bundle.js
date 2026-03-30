@@ -552,6 +552,65 @@
     }).catch(() => {});
   }
 
+  /**
+   * Set up click handler for gallery cards in Preview Mode
+   * Extracts imageId from clicked card and sends to desktop
+   */
+  function setupGalleryCardClickHandler() {
+    document.addEventListener('click', (event) => {
+      if (!interceptGenerations) return;
+      
+      // Find clicked gallery card - Grok uses masonry layout
+      const card = event.target.closest('[class*="masonry"], [class*="gallery"], a[href*="/imagine/post/"]');
+      if (!card) return;
+      
+      // Extract imageId from href or data attribute
+      let imageId = null;
+      
+      // Method 1: From href
+      const link = card.closest('a[href*="/imagine/post/"]');
+      if (link) {
+        const href = link.getAttribute('href');
+        const match = href.match(/\/imagine\/post\/([a-f0-9-]{36})/);
+        if (match) {
+          imageId = match[1];
+        }
+      }
+      
+      // Method 2: From data attribute
+      if (!imageId) {
+        imageId = card.dataset.imageId || card.dataset.id;
+      }
+      
+      // Method 3: From img src (assets.grok.com URLs contain UUID)
+      if (!imageId) {
+        const img = card.querySelector('img[src*="assets.grok.com"]');
+        if (img) {
+          const src = img.src;
+          const match = src.match(/\/([a-f0-9-]{36})\//);
+          if (match) {
+            imageId = match[1];
+          }
+        }
+      }
+      
+      if (imageId) {
+        debug('[Gallery Click] Preview Mode card clicked, imageId:', imageId);
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Send to desktop - desktop will respond with prompt_response
+        wsClient.send({
+          type: 'preview_card_clicked',
+          payload: { imageId },
+          timestamp: Date.now()
+        });
+        
+        lastAction = `Preview: Card selected (${imageId.substring(0, 8)}...)`;
+      }
+    }, true); // Use capture phase to catch before navigation
+  }
+
   async function init() {
     debug('=== INITIALIZING ===');
     debug('URL:', window.location.href);
@@ -583,6 +642,9 @@
     // Start Fetch Interception (Proxy)
     proxyFetch();
 
+    // Set up gallery card click handler for Preview Mode
+    setupGalleryCardClickHandler();
+
     // Check current URL state
     checkCurrentUrl();
 
@@ -611,6 +673,15 @@
     interceptGenerations = !!previewMode;
     debug('[handlePromptResponse] Intercept generations:', interceptGenerations);
 
+    // PREVIEW MODE: Direct API call instead of UI interaction
+    if (interceptGenerations) {
+      debug('[handlePromptResponse] PREVIEW MODE - sending direct generation request');
+      lastAction = 'Preview: Direct API request';
+      sendDirectGenerationRequest(imageId, prompt);
+      return;
+    }
+
+    // NORMAL MODE: UI injection and submission
     if (!prompt) {
       debug('[handlePromptResponse] No prompt in response');
       lastAction = 'Error: No prompt';
@@ -653,6 +724,45 @@
           debug('[handlePromptResponse] Cleared lastPromptedImageId');
         }
       }, 1000);
+    }
+  }
+
+  /**
+   * Send direct generation request for Preview Mode
+   * Bypasses UI completely - calls Grok API directly
+   */
+  async function sendDirectGenerationRequest(imageId, prompt) {
+    debug('[sendDirectGenerationRequest] Starting direct API call for imageId:', imageId);
+    
+    try {
+      // Call Grok's generate API directly
+      const response = await fetch('https://grok.com/rest/app/grok/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for auth
+        body: JSON.stringify({
+          imageId: imageId,
+          prompt: prompt,
+          // Note: Additional fields may be needed based on Grok's actual API
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      debug('[sendDirectGenerationRequest] Response received:', data);
+      
+      // The fetch proxy will intercept this, but also handle directly
+      handleGenerationResponse('https://grok.com/rest/app/grok/generate', data);
+      
+      lastAction = 'Preview: Generation requested';
+    } catch (error) {
+      debug('[sendDirectGenerationRequest] Error:', error);
+      lastAction = `Preview error: ${error.message}`;
     }
   }
 
@@ -701,11 +811,13 @@
     // Always notify desktop of URL change (for status display)
     wsClient.notifyUrlChange(url, imageId);
 
+    // In Preview Mode, don't trigger prompt requests via URL navigation
+    if (interceptGenerations) {
+      debug('[handleUrlChange] PREVIEW MODE - skipping prompt request');
+      return;
+    }
+
     // DEDUPLICATION CHECK: Only request prompt if:
-    // 1. We're on a post view with an imageId
-    // 2. We're not already processing a prompt
-    // 3. This imageId is different from the last one we requested
-    // 4. Enough time has passed since last request (cooldown)
     const now = Date.now();
     
     if (isOnPostView() && imageId) {

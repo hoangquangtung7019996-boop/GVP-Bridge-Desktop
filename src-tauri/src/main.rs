@@ -151,6 +151,38 @@ async fn handle_connection(
                         let payload = &json["payload"];
 
                         match msg_type {
+                            // Preview mode: card clicked in gallery
+                            "preview_card_clicked" => {
+                                let image_id = payload["imageId"].as_str().unwrap_or("");
+                                println!("[GVP Desktop] Preview card clicked: {}", image_id);
+                                
+                                // Get current prompt and preview mode
+                                let prompt = {
+                                    let s = state.lock();
+                                    s.current_prompt.clone()
+                                };
+                                let preview_mode = {
+                                    let s = state.lock();
+                                    s.preview_mode
+                                };
+                                
+                                // Send prompt response (will trigger direct API call in extension)
+                                let response = serde_json::json!({
+                                    "type": "prompt_response",
+                                    "payload": {
+                                        "prompt": prompt,
+                                        "imageId": image_id,
+                                        "previewMode": preview_mode
+                                    },
+                                    "timestamp": chrono_timestamp()
+                                });
+                                
+                                if let Err(e) = ws_sender.send(Message::Text(response.to_string())).await {
+                                    println!("[GVP Desktop] Send error: {}", e);
+                                    break;
+                                }
+                            }
+
                             // Extension requests prompt
                             "prompt_request" => {
                                 let image_id = payload["imageId"].as_str().unwrap_or("");
