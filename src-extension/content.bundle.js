@@ -729,40 +729,92 @@
 
   /**
    * Send direct generation request for Preview Mode
-   * Bypasses UI completely - calls Grok API directly
+   * Uses the CORRECT Grok API: /rest/app-chat/conversations/new
    */
   async function sendDirectGenerationRequest(imageId, prompt) {
     debug('[sendDirectGenerationRequest] Starting direct API call for imageId:', imageId);
+    debug('[sendDirectGenerationRequest] Prompt:', prompt?.substring(0, 50) || '(none)');
+    
+    // Generate trace IDs
+    const traceId = crypto.randomUUID?.() || 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'.replace(/x/g, () => Math.random().toString(16)[2]);
+    const requestId = crypto.randomUUID?.() || traceId;
+    
+    // Construct the public share URL for the image
+    const imageUrl = `https://imagine-public.x.ai/imagine-public/share-images/${imageId}.png`;
+    
+    // Build message: image URL + prompt + mode flag
+    const modeFlag = prompt ? '--mode=custom' : '--mode=normal';
+    const message = prompt 
+      ? `${imageUrl} ${prompt} ${modeFlag}`
+      : `${imageUrl} ${modeFlag}`;
+    
+    // Build the payload matching Grok's expected structure
+    const payload = {
+      temporary: true,
+      modelName: "grok-3",
+      enableSideBySide: true,
+      message: message,
+      responseMetadata: {
+        experiments: [],
+        modelConfigOverride: {
+          modelMap: {
+            videoGenModelConfig: {
+              parentPostId: imageId,
+              aspectRatio: "1:1",
+              videoLength: 10,
+              resolutionName: "480p",
+              isRootCelebrity: false,
+              isRootChild: false,
+              isRootRRated: false,
+              isRootUserUploaded: false
+            }
+          }
+        }
+      },
+      toolOverrides: {
+        videoGen: true
+      }
+    };
+    
+    debug('[sendDirectGenerationRequest] Payload:', JSON.stringify(payload, null, 2));
     
     try {
-      // Call Grok's generate API directly
-      const response = await fetch('https://grok.com/rest/app/grok/generate', {
+      const response = await fetch('https://grok.com/rest/app-chat/conversations/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-trace-id': traceId,
+          'x-xai-request-id': requestId
         },
-        credentials: 'include', // Include cookies for auth
-        body: JSON.stringify({
-          imageId: imageId,
-          prompt: prompt,
-          // Note: Additional fields may be needed based on Grok's actual API
-        })
+        credentials: 'include',  // Include cookies for auth
+        body: JSON.stringify(payload)
       });
       
+      debug('[sendDirectGenerationRequest] Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`API returned ${response.status}: ${errorText}`);
       }
       
-      const data = await response.json();
-      debug('[sendDirectGenerationRequest] Response received:', data);
+      // The response is a stream - the fetch proxy will intercept it
+      // But we also need to handle the initial response
+      debug('[sendDirectGenerationRequest] Request sent successfully, stream will be intercepted');
+      lastAction = 'Preview: Generation started';
       
-      // The fetch proxy will intercept this, but also handle directly
-      handleGenerationResponse('https://grok.com/rest/app/grok/generate', data);
-      
-      lastAction = 'Preview: Generation requested';
     } catch (error) {
       debug('[sendDirectGenerationRequest] Error:', error);
       lastAction = `Preview error: ${error.message}`;
+      
+      // Send error to desktop
+      wsClient.send({
+        type: 'generation_result',
+        payload: {
+          url: 'https://grok.com/rest/app-chat/conversations/new',
+          data: { error: error.message },
+          timestamp: Date.now()
+        }
+      });
     }
   }
 
@@ -932,7 +984,8 @@
   function isGenerationUrl(url) {
     if (!url) return false;
     // Grok's generation endpoints
-    return url.includes('/rest/app/grok/upscale') || 
+    return url.includes('/rest/app-chat/conversations/new') ||
+           url.includes('/rest/app/grok/upscale') || 
            url.includes('/rest/app/grok/generate') ||
            url.includes('/rest/app/grok/get_video_generation_result');
   }
