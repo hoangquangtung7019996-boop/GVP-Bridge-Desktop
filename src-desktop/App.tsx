@@ -10,11 +10,14 @@ import PromptInput from './components/PromptInput';
 import StatusBar from './components/StatusBar';
 import GalleryPanel, { Generation } from './components/GalleryPanel';
 
+type TabId = 'prompt' | 'gallery';
+
 export default function App() {
     const [promptSet, setPromptSet] = createSignal(false);
     const [currentPrompt, setCurrentPrompt] = createSignal('');
     const [appReady, setAppReady] = createSignal(false);
     const [generations, setGenerations] = createSignal<Generation[]>([]);
+    const [activeTab, setActiveTab] = createSignal<TabId>('prompt');
 
     onMount(async () => {
         try {
@@ -106,6 +109,27 @@ export default function App() {
                 <span class="version">v0.1.0</span>
             </header>
 
+            {/* Tab Navigation */}
+            <nav class="tab-nav">
+                <button
+                    class={`tab-btn ${activeTab() === 'prompt' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('prompt')}
+                >
+                    <span class="tab-icon">✏️</span>
+                    <span class="tab-label">Prompt</span>
+                </button>
+                <button
+                    class={`tab-btn ${activeTab() === 'gallery' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('gallery')}
+                >
+                    <span class="tab-icon">🖼️</span>
+                    <span class="tab-label">Gallery</span>
+                    {generations().length > 0 && (
+                        <span class="tab-badge">{generations().length}</span>
+                    )}
+                </button>
+            </nav>
+
             {/* Main Content */}
             <main class="app-main">
                 {!appReady() ? (
@@ -114,20 +138,24 @@ export default function App() {
                     </div>
                 ) : (
                     <>
-                        {/* Prompt Input Section */}
-                        <section class="prompt-section">
-                            <PromptInput onPromptSet={handlePromptSet} />
-                        </section>
+                        {/* Prompt Tab */}
+                        {activeTab() === 'prompt' && (
+                            <>
+                                <section class="prompt-section">
+                                    <PromptInput onPromptSet={handlePromptSet} />
+                                </section>
+                                <section class="status-section">
+                                    <StatusBar initialStatus={promptSet() ? 'Prompt ready' : 'Ready'} />
+                                </section>
+                            </>
+                        )}
 
-                        {/* Status Section */}
-                        <section class="status-section">
-                            <StatusBar initialStatus={promptSet() ? 'Prompt ready' : 'Ready'} />
-                        </section>
-
-                        {/* Gallery Section */}
-                        <section class="gallery-section">
-                            <GalleryPanel generations={generations()} />
-                        </section>
+                        {/* Gallery Tab */}
+                        {activeTab() === 'gallery' && (
+                            <section class="gallery-section-full">
+                                <GalleryPanel generations={generations()} />
+                            </section>
+                        )}
                     </>
                 )}
             </main>

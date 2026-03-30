@@ -538,6 +538,7 @@
   let lastPromptRequestTime = 0;         // Timestamp of last request
   const PROMPT_REQUEST_COOLDOWN = 2000;  // 2 second cooldown between requests
   let interceptGenerations = false;      // Whether to intercept and preview generations
+  let capturedStatsigId = null;          // Captured Statsig ID for direct API calls
 
   function sendStatusUpdate(status = {}) {
     chrome.runtime.sendMessage({
@@ -806,6 +807,12 @@
       'x-trace-id': traceId,
       'x-xai-request-id': requestId
     };
+
+    // Reuse captured Statsig ID if available (critical for anti-bot)
+    if (capturedStatsigId) {
+      debug('[sendDirectGenerationRequest] Adding captured x-statsig-id:', capturedStatsigId);
+      headers['x-statsig-id'] = capturedStatsigId;
+    }
     
     debug('[sendDirectGenerationRequest] Headers:', JSON.stringify(headers, null, 2));
     
@@ -992,6 +999,27 @@
     window.fetch = async function(...args) {
       const url = typeof args[0] === 'string' ? args[0] : (args[0] instanceof URL ? args[0].href : (args[0] && args[0].url));
       
+      // CAPTURE: Try to steal x-statsig-id from outgoing request headers
+      try {
+        const options = args[1] || {};
+        const headers = options.headers;
+        if (headers) {
+          let sid = null;
+          if (headers instanceof Headers) {
+            sid = headers.get('x-statsig-id');
+          } else if (typeof headers === 'object') {
+            sid = headers['x-statsig-id'] || headers['X-Statsig-Id'];
+          }
+          
+          if (sid && sid !== capturedStatsigId) {
+            capturedStatsigId = sid;
+            debug('Captured x-statsig-id:', sid);
+          }
+        }
+      } catch (e) {
+        // Silently fail capture
+      }
+
       const response = await originalFetch.apply(this, args);
       
       if (interceptGenerations && isGenerationUrl(url)) {

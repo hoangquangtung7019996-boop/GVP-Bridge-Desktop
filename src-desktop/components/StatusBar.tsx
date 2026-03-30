@@ -1,9 +1,9 @@
 /**
  * GVP Bridge - Status Bar Component
- * Shows connection status and recent activity
+ * Shows connection status and recent activity using SolidJS signals
  */
 
-import { createSignal, onMount, onCleanup } from 'solid-js';
+import { createSignal, onMount, onCleanup, Show, For } from 'solid-js';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -11,125 +11,109 @@ interface StatusBarProps {
     initialStatus?: string;
 }
 
-interface StatusUpdate {
-    status: string;
-    success: boolean;
-    message: string;
-}
-
-interface UrlChange {
-    url: string;
-    imageId: string;
-}
-
 export default function StatusBar(props: StatusBarProps) {
-    const [connectionStatus, setConnectionStatus] = createSignal('Disconnected');
-    const [lastStatus, setLastStatus] = createSignal(props.initialStatus || 'Ready');
+    const [connected, setConnected] = createSignal(false);
+    const [currentStatus, setCurrentStatus] = createSignal(props.initialStatus || 'Ready');
+    const [activityLog, setActivityLog] = createSignal<string[]>([]);
     const [lastUrl, setLastUrl] = createSignal('');
     const [lastImageId, setLastImageId] = createSignal('');
-    const [statusHistory, setStatusHistory] = createSignal<string[]>([]);
 
     const unlisteners: (() => void)[] = [];
 
     onMount(async () => {
-        // Fetch initial connection status from backend
+        // Fetch initial status
         try {
             const status = await invoke<{ connections?: string; status?: string; url?: string; imageId?: string }>('get_status');
             const connCount = parseInt(status.connections || '0');
-            if (connCount > 0) {
-                setConnectionStatus(`Connected (${connCount})`);
-            }
-            if (status.status) {
-                setLastStatus(status.status);
-            }
-            if (status.url) {
-                setLastUrl(status.url);
-            }
-            if (status.imageId) {
-                setLastImageId(status.imageId);
-            }
+            setConnected(connCount > 0);
+            
+            if (status.status) setCurrentStatus(status.status);
+            if (status.url) setLastUrl(status.url);
+            if (status.imageId) setLastImageId(status.imageId);
         } catch (e) {
-            console.error('[StatusBar] Failed to get initial status:', e);
+            console.error('[StatusBar] Initial status error:', e);
         }
 
-        // Listen for WebSocket connection events
-        const unlisten1 = await listen<string>('ws-connection', (event) => {
-            setConnectionStatus(event.payload);
+        // Listen for WebSocket connection status changes
+        const un1 = await listen<string>('ws-connection', (event) => {
+            const status = event.payload;
+            setConnected(status.startsWith('Connected'));
         });
-        unlisteners.push(unlisten1);
+        unlisteners.push(un1);
 
-        // Listen for status updates from extension
-        const unlisten2 = await listen<StatusUpdate>('status-update', (event) => {
-            const { message } = event.payload;
-            setLastStatus(message);
-            addToHistory(message);
+        // Listen for activity events
+        const un2 = await listen<{ message: string }>('status-update', (event) => {
+            const msg = event.payload.message;
+            setCurrentStatus(msg);
+            addActivity(msg);
         });
-        unlisteners.push(unlisten2);
-
-        // Listen for URL changes
-        const unlisten3 = await listen<UrlChange>('url-changed', (event) => {
-            setLastUrl(event.payload.url);
-            if (event.payload.imageId) {
-                setLastImageId(event.payload.imageId);
-            }
-            addToHistory(`Navigated to ${event.payload.imageId || 'unknown'}`);
-        });
-        unlisteners.push(unlisten3);
+        unlisteners.push(un2);
 
         // Listen for prompt sent events
-        const unlisten4 = await listen<string>('prompt-sent', (event) => {
-            addToHistory(`Prompt sent to image: ${event.payload}`);
+        const un3 = await listen<string>('prompt-sent', (event) => {
+            const imageId = event.payload;
+            addActivity(`Prompt sent to: ${imageId.substring(0, 8)}...`);
         });
-        unlisteners.push(unlisten4);
+        unlisteners.push(un3);
+
+        // Listen for URL changes
+        const un4 = await listen<{ url: string; imageId: string }>('url-changed', (event) => {
+            setLastUrl(event.payload.url);
+            setLastImageId(event.payload.imageId);
+            addActivity(`Navigated to ${event.payload.imageId || 'unknown'}`);
+        });
+        unlisteners.push(un4);
     });
 
     onCleanup(() => {
-        unlisteners.forEach(unlisten => unlisten());
+        unlisteners.forEach(fn => fn());
     });
 
-    const addToHistory = (message: string) => {
-        const timestamp = new Date().toLocaleTimeString();
-        setStatusHistory(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 9)]);
+    const addActivity = (message: string) => {
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const logEntry = `[${timestamp}] ${message}`;
+        setActivityLog(prev => [logEntry, ...prev].slice(0, 10));
     };
-
-    const isConnected = () => connectionStatus().includes('Connected');
 
     return (
         <div class="status-bar">
             {/* Connection Status */}
             <div class="status-row">
                 <div class="connection-indicator">
-                    <span class={`status-dot ${isConnected() ? 'connected' : 'disconnected'}`}></span>
-                    <span class="connection-text">{connectionStatus()}</span>
+                    <span class={`status-dot ${connected() ? 'connected' : 'disconnected'}`}></span>
+                    <span class="connection-text">{connected() ? 'Connected' : 'Disconnected'}</span>
                 </div>
                 <div class="current-status">
-                    {lastStatus()}
+                    {currentStatus()}
                 </div>
             </div>
 
-            {/* Last URL / Image ID */}
+            {/* Last Activity context */}
             {lastImageId() && (
                 <div class="url-display">
-                    <span class="url-label">Last Image:</span>
+                    <span class="url-label">Target:</span>
                     <span class="url-value" title={lastUrl()}>
                         {lastImageId()}
                     </span>
                 </div>
             )}
 
-            {/* Status History */}
+            {/* Recent Activity Log */}
             <div class="status-history">
                 <div class="history-header">Recent Activity</div>
                 <div class="history-list">
-                    {statusHistory().length === 0 ? (
-                        <div class="history-empty">No activity yet</div>
-                    ) : (
-                        statusHistory().map((item, i) => (
-                            <div class="history-item" data-index={i}>
-                                {item}
-                            </div>
-                        ))
-                    )}
+                    <Show 
+                        when={activityLog().length > 0}
+                        fallback={<div class="history-empty">No activity yet</div>}
+                    >
+                        <For each={activityLog()}>
+                            {(item, index) => (
+                                <div class="history-item" data-index={index()}>
+                                    {item}
+                                </div>
+                            )}
+                        </For>
+                    </Show>
                 </div>
             </div>
         </div>

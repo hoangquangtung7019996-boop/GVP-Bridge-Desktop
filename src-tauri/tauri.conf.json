@@ -13,10 +13,13 @@
     "windows": [
       {
         "title": "GVP Bridge",
-        "width": 400,
-        "height": 300,
+        "width": 500,
+        "height": 650,
+        "minWidth": 400,
+        "minHeight": 500,
         "resizable": true,
-        "alwaysOnTop": true
+        "alwaysOnTop": false,
+        "center": true
       }
     ],
     "security": {
