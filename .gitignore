@@ -18,7 +18,7 @@ src-tauri/Cargo.lock
 
 # Documentation Isolation (Token-Friendly Master Docs Only)
 .agents/
-Readme/
+Readme/*
 !Readme/GVP_MISSION_CONTROL.md
 !Readme/GVP_TECHNICAL_SPEC.md
 
