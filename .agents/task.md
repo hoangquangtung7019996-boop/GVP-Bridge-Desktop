@@ -1,8 +1,0 @@
-- [x] Step 1: Rewrite content.bundle.js (REPLACE)
-- [x] Step 2: Gut gvpFetchInterceptor.js (REPLACE)
-- [x] Step 3: Rewrite background.js (REPLACE)
-- [x] Step 4: Update manifest.json (MODIFY)
-- [x] Step 5: Update main.rs (MODIFY 5a-5g)
-- [x] Step 6: Update PromptInput.tsx (MODIFY 6a-6d)
-- [x] Step 7: Update App.tsx (MODIFY)
-- [x] Verification
