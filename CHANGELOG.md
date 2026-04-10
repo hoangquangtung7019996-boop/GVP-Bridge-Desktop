@@ -1,16 +1,17 @@
-# GVP Bridge Changelog
+## [0.7.5] - 2026-04-10
 
-All notable changes to the GVP Bridge project will be documented in this file.
+### Session Summary: Project Saturation & Documentation Overhaul
+- **Objective**: Achieve 100% documentation accuracy and purge legacy "Harvester" noise.
+- **Status**: 🟢 Documentation Sync Complete. 🟢 GitHub Master Updated.
+- **Key Changes**: Consolidated SQLx/UVH schema, Media Proxy logic, and WAF technical insights. Purged 200+ lines of abandoned API-spoofing debugging sessions.
 
----
-
-## [0.7.0] - 2026-04-07
-
-### Session Summary
-- Completed: PLAN_040 — Stripped Ghost Window Implementation
-- Plans executed: PLAN_040
-- Files modified: 7 (3 replaced, 4 modified)
-- Architecture: Ghost Window DOM automation live; all harvester code removed
+### Added / Updated
+- **GVP_TECHNICAL_SPEC.md**: Defined 4-table SQLx schema, Sentinel Sync logic, and nested JSON tree model.
+- **GVP_MISSION_CONTROL.md**: Synchronized ecosystem diagram and Master/Slave protocols.
+- **ARCHITECTURE.md**: Purged "Guillotine Mode" and Harvester components. Focused on Desktop-first "Brain" architecture.
+- **HANDOVER.md**: Re-written as a bootstrap-ready guide for the next session.
+- **CHANGELOG.md**: Consolidated failed 403-spoofing entries into a high-level Pivot summary.
+- **task.md**: Reset priority to the **Main Gallery Grid Fix**.
 
 ### PLAN_040: Ghost Window Implementation
 - **content.bundle.js**: Rewritten from 1321→545 lines. Pure WS client + DOM automation + CSS cloak + passive interceptor listener. Zero harvester, zero statsig, zero direct API calls.
