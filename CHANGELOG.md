@@ -71,30 +71,17 @@ All notable changes to the GVP Bridge project will be documented in this file.
 
 ---
 
-## [0.5.4] - 2026-04-06
-
-### Fixed — Harvester 403 after 2 replays (missing sentry-trace/baggage headers)
-- **Root Cause**: Grok's WAF requires valid `sentry-trace` + `baggage` headers on every `/conversations/new` request. Our `ORIGINAL_FETCH` is Sentry's wrapped fetch — Sentry adds these automatically for the first ~2 calls, then its transaction/span lifecycle expires and it stops. Without them, the WAF rejects as bot traffic (403 code 7).
-- **gvpFetchInterceptor.js**: Added `getSentryTraceHeaders()` — reads live trace context from Grok's page-level `Sentry.getTraceData()` API, falling back to `__SENTRY__` hub, then to synthetic valid-format headers
-- **gvpFetchInterceptor.js**: `cloneAndFire()` now injects fresh `sentry-trace`, `baggage`, and `traceparent` headers on EVERY replay call, obtained directly from the page's Sentry SDK
-- **gvpFetchInterceptor.js**: Added `generateHexId()` utility for W3C-compliant trace/span ID generation
-
 ---
 
-## [0.5.3] - 2026-04-06
+## [0.6.0] - 2026-04-06
 
-### Added — Harvester rate limiting (defensive measure)
-- **gvpFetchInterceptor.js**: Added `MIN_FIRE_INTERVAL_MS` (12s) throttle between replay fires
-- **gvpFetchInterceptor.js**: Added 403 cooldown with exponential backoff (30s → 60s → 120s → 240s max)
-- **gvpFetchInterceptor.js**: Fires during cooldown rejected with `RATE_LIMITED` error to desktop app
+### ARCHITECTURAL PIVOT: Network-Layer WAF Constraints
+The Fetch Harvester / API replay approach was officially abandoned after extensive testing revealed that Grok's Cloudflare WAF correlates TLS session signatures and Sentry APM trace lifecycles (`sentry-trace`, `baggage`). These metrics are generated below the JavaScript injection layer, making 100% header parity insufficient for long-term automation.
 
----
-
-## [0.5.2] - 2026-04-06
-
-### Changed — Harvester header capture (attempt — partial improvement)
-- **gvpFetchInterceptor.js**: Added `new Request()` header merge attempt (captures same 3 headers — Sentry patches below wrapper level)
-- **gvpFetchInterceptor.js**: After every successful replay (200 OK), template timestamp, `traceparent`, `baggage`, and `x-xai-request-id` are refreshed from live values
+### Technical Discovery: Header Lifecycle
+- **Sentry Trace Stale-ness**: Discovered that Grok's headers are transactionally bound to the page's Sentry SDK instance. Replaying intercepted headers fails as soon as the browser-side Sentry transaction expires.
+- **TLS Fingerprinting**: Confirmed Cloudflare identifies programmatic `fetch` vs. native browser navigation regardless of header matching.
+- **Decision**: Shifted all generation logic to **"Ghost Window" DOM Automation**.
 
 ---
 

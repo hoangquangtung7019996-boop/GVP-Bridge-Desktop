@@ -65,7 +65,7 @@ graph TB
     subgraph NETWORK["NETWORK LAYER"]
         direction TB
         NET["NetworkInterceptor.js<br/>Fetch Interception"]
-        FETCH_INJECT["gvpFetchInterceptor.js<br/>Page Context Script"]
+        FETCH_INJECT["gvpFetchInterceptor.js<br/>Passive Observer"]
         MOD_DETECT["ModerationDetector.js<br/>Moderation Detection"]
     end
 
@@ -113,7 +113,6 @@ graph TB
         F11["Word Swap<br/>Prompt transformations"]
         F12["Chunk Builder<br/>Prompt assembly"]
         F13["Aurora Mode<br/>Auto blank image injection"]
-        F14["Guillotine Mode<br/>API-based uploads"]
     end
 
     %% Core Dependencies
@@ -257,7 +256,7 @@ graph TB
 ### 📁 public/injected/ (1 file)
 | File | Purpose |
 |------|---------|
-| `gvpFetchInterceptor.js` | Page context script - intercepts fetch, modifies payloads, Aurora mode |
+| `gvpFetchInterceptor.js` | Passive Observer - monitors SSE stream for media URLs |
 
 ### 📁 src/content/ (1 file)
 | File | Purpose |

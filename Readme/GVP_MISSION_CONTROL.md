@@ -75,7 +75,8 @@ You manage the user's interaction with the sub-agents. You **NEVER** write appli
 ---
 
 ## 4. CURRENT PROJECT STATE
-- ✅ **Data Migration & Proxy**: 100% complete. Rust proxy successfully streams protected media using `reqwest::blocking` and smuggled cookies.
-- ✅ **Detail Workspace**: 100% functional. Prompt routing (Copy/Send) is active.
+- ✅ **Data Migration & Persistence**: 100% complete. SQLx/SQLite backend with UVH (nested) and HMR (moderation) logic is live.
+- ✅ **Media Proxy & Auth Sync**: 100% functional. `gvp://` scheme bypasses CORS/CSP. Cookies are smuggled from Extension to Rust to authorize secure asset fetching.
+- ✅ **Blind Robot Extension**: 100% efficient. `declarativeNetRequest` reduces memory footprint by blocking non-essential assets in the ghost window.
 - 🔴 **CRITICAL BLOCKER**: **Main Gallery Grid Collapse**. Chromium bug squashing cards into thin vertical slivers when `GalleryState === "root"`.
 

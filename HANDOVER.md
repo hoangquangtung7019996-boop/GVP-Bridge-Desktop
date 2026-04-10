@@ -27,20 +27,15 @@ None.
 
 ## ARCHITECTURAL PIVOT: Why We Abandoned API/Fetch Replay
 
-### The Network-Layer Death March (PLAN_037 → PLAN_039)
+### The WAF Constraint (Lessons Learnt from PLAN_037 → PLAN_039)
+Despite achieving **100% header parity** and successful **Sentry traceparent synchronization**, manual `fetch` replays were consistently blocked by Cloudflare (403 Forbidden) after ~2-3 attempts.
 
-| Attempt | Technique | Outcome |
-|---------|-----------|---------|
-| PLAN_037 (v0.5.0) | Header parity (31/31 match), traceparent sync | 403 after ~3 replays |
-| v0.5.2 | Live trace capture from intercepted requests | Traces go stale when Sentry transaction expires |
-| v0.5.3 | Exponential backoff + 403 cooldowns | Slowed failures, didn't prevent them |
-| v0.5.4 | `Sentry.getTraceData()` live injection per fire | Sporadic 403 — WAF detects replay timing patterns |
-| PLAN_038 | Full skeleton template deep clone | Architecture works, WAF still kills after 2-3 fires |
-| PLAN_039 | Desktop→Extension push via broadcast channel | Push infra works perfectly, but the actual fetch still gets 403'd |
+**Critical Findings:**
+1. **TLS Fingerprinting**: Grok's WAF correlates browser-level TLS session signatures with incoming requests. Standard extension `fetch` calls cannot reliably spoof these session-level identifiers.
+2. **Sentry Trace Lifecycle**: Grok uses short-lived, transaction-specific APM traces (via `Sentry.getTraceData()`). Replaying these traces leads to "stale" detection patterns.
+3. **WAF Correlation**: API replays are detected via timing pattern recognition that falls below the JavaScript execution layer.
 
-**Root Cause**: Grok's Cloudflare WAF correlates TLS session fingerprints, request timing, and Sentry APM trace lifecycle. This is **below JavaScript's control layer** and unfixable from an extension.
-
-**DOM-click method has 100% success rate** across 6 months of the original extension. Grok can't distinguish it from a real user because it IS a real user action.
+**Conclusion**: The **DOM-click method** has a 100% success rate because it leverages the browser's native authenticated context. This approach is now the standard for the GVP Bridge.
 
 ---
 
