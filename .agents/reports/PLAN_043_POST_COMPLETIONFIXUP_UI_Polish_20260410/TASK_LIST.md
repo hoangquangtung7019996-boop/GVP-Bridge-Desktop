@@ -1,0 +1,1 @@
+- [x] STEP 1: Replace entire GalleryPanel.tsx according to plan instructions

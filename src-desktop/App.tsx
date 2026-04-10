@@ -8,7 +8,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import PromptInput from './components/PromptInput';
 import StatusBar from './components/StatusBar';
-import GalleryPanel, { Generation } from './components/GalleryPanel';
+import GalleryPanel from './components/GalleryPanel';
 
 type TabId = 'prompt' | 'gallery';
 
@@ -16,7 +16,7 @@ export default function App() {
     const [promptSet, setPromptSet] = createSignal(false);
     const [currentPrompt, setCurrentPrompt] = createSignal('');
     const [appReady, setAppReady] = createSignal(false);
-    const [generations, setGenerations] = createSignal<Generation[]>([]);
+    const [galleryRefresh, setGalleryRefresh] = createSignal(0);
     const [activeTab, setActiveTab] = createSignal<TabId>('prompt');
 
     onMount(async () => {
@@ -37,10 +37,20 @@ export default function App() {
             
             setAppReady(true);
 
-            // Listen for generation results from backend
+            // Listen for generation results from backend (passive interceptor)
             await listen<any>('generation-result', (event) => {
-                console.log('[GVP Desktop] Received generation result event:', event);
-                handleGenerationResult(event.payload);
+                console.log('[GVP Desktop] Received generation result:', event.payload);
+            });
+
+            // Listen for fire results (Ghost Window)
+            await listen<any>('fire-result', (event) => {
+                console.log('[GVP Desktop] 🚀 Fire result:', event.payload);
+            });
+
+            // PLAN_041: Listen for gallery sync updates
+            await listen<any>('gallery-updated', (event) => {
+                console.log('[GVP Desktop] 📥 Gallery updated:', event.payload);
+                setGalleryRefresh(prev => prev + 1);
             });
         } catch (error) {
             console.error('[GVP Desktop] Failed to initialize:', error);
@@ -124,8 +134,8 @@ export default function App() {
                 >
                     <span class="tab-icon">🖼️</span>
                     <span class="tab-label">Gallery</span>
-                    {generations().length > 0 && (
-                        <span class="tab-badge">{generations().length}</span>
+                    {galleryRefresh() > 0 && (
+                        <span class="tab-badge">●</span>
                     )}
                 </button>
             </nav>
@@ -153,7 +163,7 @@ export default function App() {
                         {/* Gallery Tab */}
                         {activeTab() === 'gallery' && (
                             <section class="gallery-section-full">
-                                <GalleryPanel generations={generations()} />
+                                <GalleryPanel refreshTrigger={galleryRefresh()} />
                             </section>
                         )}
                     </>

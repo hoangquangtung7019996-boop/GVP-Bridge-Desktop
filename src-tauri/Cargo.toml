@@ -15,6 +15,11 @@ tokio = { version = "1.0", features = ["full"] }
 tokio-tungstenite = "0.24"
 futures-util = "0.3"
 parking_lot = "0.12"
+tauri-plugin-sql = { version = "2.4.0", features = ["sqlite"] }
+chrono = "0.4.44"
+sqlx = { version = "0.8.6", features = ["sqlite", "runtime-tokio"] }
+reqwest = { version = "0.12", features = ["blocking", "brotli", "gzip", "deflate"] }
+
 
 [features]
 default = ["custom-protocol"]

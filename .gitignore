@@ -1,29 +1,69 @@
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.eslintcache
+# Fundamental Core Folders
+!src-desktop/
+!src-extension/
+!src-tauri/
+!.agents/
+!public/
 
-# Rust/Tauri
-src-tauri/target/
+# Build & Dependency Artifacts (Strictly Ignored)
+node_modules/
+**/target/
+dist/
+build/
+out/
 src-tauri/gen/
-src-tauri/bin/aries*
+src-tauri/bin/
+.tauri
+.vercel
+.next
+package-lock.json
 src-tauri/Cargo.lock
 
-# OS
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS & IDE Caches
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+.eslintcache
 
-# Project specific
+# Local Configuration & Security
 .env
-dist/
-build/
-out/
+.env.*
+!.env.example
+*.local
+
+# Scratch & Reference Files (Excluding non-fundamental MDs)
+good.md
+bad.md
+#*
+* (1).md
+* (2).md
+*.tmp
+SESSION_INIT.md
+SLAVE_ONLY.md
+GVP_MASTER_STARTER.md
+
+# Large Design Binaries (Ignored unless in asset folders)
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.gif
+!src-desktop/assets/**/*
+!public/**/*
+
+# Core Meta
+!.gitignore
+!package.json
+!README.md
+!PROJECT_CONTEXT.md
+!Cargo.toml
+!src-tauri/Cargo.toml
+!src-tauri/tauri.conf.json

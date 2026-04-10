@@ -1,0 +1,22 @@
+{
+    "temporary": true,
+    "modelName": "grok-3",
+    "message": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png --mode=normal",
+    "toolOverrides": {
+        "videoGen": true
+    },
+    "enableSideBySide": true,
+    "responseMetadata": {
+        "experiments": [],
+        "modelConfigOverride": {
+            "modelMap": {
+                "videoGenModelConfig": {
+                    "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                    "aspectRatio": "9:16",
+                    "videoLength": 10,
+                    "resolutionName": "480p"
+                }
+            }
+        }
+    }
+}

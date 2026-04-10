@@ -1,0 +1,2 @@
+- [x] Step 1: Fix src-tauri/src/main.rs (REPLACE setup logic)
+- [x] Step 2: Verification (Manual - verify setup runs without panic)

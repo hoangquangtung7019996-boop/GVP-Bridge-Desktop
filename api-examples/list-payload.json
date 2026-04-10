@@ -1,0 +1,7 @@
+{
+    "limit": 10,
+    "filter": {
+        "source": "MEDIA_POST_SOURCE_LIKED"
+    },
+    "cursor": "1774459906165"
+}

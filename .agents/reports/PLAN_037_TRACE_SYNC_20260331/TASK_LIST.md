@@ -1,0 +1,4 @@
+- `[x]` Update `gvpFetchInterceptor.js` for Trace Capture
+- `[x]` Implement `lastTraceparent` and `lastBaggage` global state
+- `[x]` Update `GVP_EXECUTE_DIRECT_GEN` handler for Trace Application
+- `[ ]` Final 200 OK Verification (User Action Required)

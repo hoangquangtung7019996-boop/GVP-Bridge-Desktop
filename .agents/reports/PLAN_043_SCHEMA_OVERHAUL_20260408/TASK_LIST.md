@@ -1,0 +1,6 @@
+- [x] STEP 1: Rewrite SQLite Schema
+- [x] STEP 2: Rewrite Gallery Normalizer
+- [x] STEP 3: Add `get_uvh_tree` Tauri Command
+- [x] STEP 4: Register command
+- [x] STEP 5: Add Reactivity Event Emits
+- [x] STEP 6: UI Refactor for UVH Nested Structure

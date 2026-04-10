@@ -1,0 +1,463 @@
+{
+    "result": {
+        "conversation": {
+            "conversationId": "4bb95aa6-6820-4561-a9e3-feb92f026c7a",
+            "title": "New conversation",
+            "starred": false,
+            "createTime": "2026-04-06T12:47:30.173188Z",
+            "modifyTime": "2026-04-06T12:47:30.173949Z",
+            "systemPromptName": "",
+            "temporary": true,
+            "mediaTypes": [],
+            "workspaces": [],
+            "taskResult": null
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "userResponse": {
+                "responseId": "9e2b6cac-4bea-4ab1-af1f-34a311275041",
+                "message": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png --mode=normal",
+                "sender": "human",
+                "createTime": "2026-04-06T12:47:30.225Z",
+                "manual": false,
+                "partial": false,
+                "shared": false,
+                "query": "",
+                "queryType": "",
+                "webSearchResults": [],
+                "xpostIds": [],
+                "xposts": [],
+                "generatedImageUrls": [],
+                "imageAttachments": [],
+                "fileAttachments": [
+                    "f226cd4d-71fd-4f2b-af54-96185adc275b"
+                ],
+                "cardAttachmentsJson": [],
+                "fileUris": [],
+                "fileAttachmentsMetadata": [],
+                "isControl": false,
+                "steps": [],
+                "imageEditUris": [],
+                "mediaTypes": [],
+                "webpageUrls": [],
+                "metadata": {
+                    "experiments": [],
+                    "modelConfigOverride": {
+                        "modelMap": {
+                            "videoGenModelConfig": {
+                                "aspectRatio": "9:16",
+                                "isVideoExtension": false,
+                                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                                "resolutionName": "480p",
+                                "videoLength": 10
+                            }
+                        }
+                    }
+                },
+                "citedWebSearchResults": [],
+                "toolResponses": [],
+                "model": "imagine-video-gen",
+                "ragResults": [],
+                "citedRagResults": [],
+                "searchProductResults": [],
+                "connectorSearchResults": [],
+                "collectionSearchResults": [],
+                "highlightsStories": [],
+                "streamErrors": []
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "9e2b6cac-4bea-4ab1-af1f-34a311275041"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "progressReport": {
+                "category": "PROGRESS_REPORT_CATEGORY_ATTACHMENTS_PREPROCESSING",
+                "state": "PROGRESS_REPORT_STATUS_PENDING",
+                "message": "Started pre-processing attachments"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "progressReport": {
+                "category": "PROGRESS_REPORT_CATEGORY_ATTACHMENTS_PREPROCESSING",
+                "state": "PROGRESS_REPORT_STATUS_SUCCESS",
+                "message": "Finished pre-processing attachments"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "queryAction": {
+                "query": "",
+                "type": "imagine"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "imageAttachmentInfo": {
+                "imageAttachmentCount": 1
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 1,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 5,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 14,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 23,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 33,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 43,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 53,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 63,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 73,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 95,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": false,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "streamingVideoGenerationResponse": {
+                "videoId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "progress": 100,
+                "audioUrls": [],
+                "videoPrompt": "",
+                "imageReference": "https://imagine-public.x.ai/imagine-public/share-images/46ef3503-f04c-4076-9840-914504d54d01.png",
+                "audioTranscripts": [],
+                "moderated": true,
+                "mode": "normal",
+                "modelName": "imagine-video-gen",
+                "parentPostId": "46ef3503-f04c-4076-9840-914504d54d01",
+                "videoPostId": "1b55a977-e927-47dd-9b7f-f2062325c221",
+                "height": 560,
+                "width": 560,
+                "resolutionName": "480p"
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "token": "I generated a video",
+            "isThinking": false,
+            "isSoftStop": true,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "response": {
+            "modelResponse": {
+                "responseId": "b3988cca-0e26-471e-b899-07007050c64b",
+                "message": "I generated a video",
+                "sender": "ASSISTANT",
+                "createTime": "2026-04-06T12:48:00.129Z",
+                "parentResponseId": "9e2b6cac-4bea-4ab1-af1f-34a311275041",
+                "manual": false,
+                "partial": false,
+                "shared": false,
+                "query": "",
+                "queryType": "imagine",
+                "webSearchResults": [],
+                "xpostIds": [],
+                "xposts": [],
+                "generatedImageUrls": [],
+                "imageAttachments": [],
+                "fileAttachments": [],
+                "cardAttachmentsJson": [],
+                "fileUris": [],
+                "fileAttachmentsMetadata": [],
+                "isControl": false,
+                "steps": [],
+                "imageEditUris": [],
+                "mediaTypes": [],
+                "webpageUrls": [],
+                "metadata": {
+                    "deepsearchPreset": "",
+                    "request_metadata": {
+                        "effort": "high",
+                        "mode": "imagine",
+                        "model": "imagine-video-gen"
+                    },
+                    "request_trace_id": "b58199e171741345067cca0e2438e165"
+                },
+                "thinkingStartTime": "2026-04-06T12:47:31.204Z",
+                "thinkingEndTime": "2026-04-06T12:48:00.117Z",
+                "citedWebSearchResults": [],
+                "toolResponses": [],
+                "model": "imagine-video-gen",
+                "requestMetadata": {
+                    "model": "imagine-video-gen",
+                    "mode": "MODEL_MODE_UNKNOWN",
+                    "effort": "HIGH"
+                },
+                "ragResults": [],
+                "citedRagResults": [],
+                "searchProductResults": [],
+                "connectorSearchResults": [],
+                "collectionSearchResults": [],
+                "highlightsStories": [],
+                "streamErrors": []
+            },
+            "isThinking": false,
+            "isSoftStop": false,
+            "responseId": "b3988cca-0e26-471e-b899-07007050c64b"
+        }
+    }
+}{
+    "result": {
+        "title": {
+            "newTitle": "AI Image to Video Generation"
+        }
+    }
+}

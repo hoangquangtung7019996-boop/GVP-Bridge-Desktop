@@ -15,6 +15,7 @@ export default function PromptInput(props: PromptInputProps) {
     const [prompt, setPrompt] = createSignal('');
     const [isLoading, setIsLoading] = createSignal(false);
     const [previewMode, setPreviewMode] = createSignal(false);
+    const [fireStatus, setFireStatus] = createSignal<string | null>(null);
     let textareaRef: HTMLTextAreaElement | undefined;
 
     // Auto-resize textarea
@@ -64,9 +65,25 @@ export default function PromptInput(props: PromptInputProps) {
             await invoke('set_preview_mode', { enabled: newState });
         } catch (error) {
             console.error('Failed to toggle preview mode:', error);
-            // Revert on failure
             setPreviewMode(!newState);
         }
+    };
+
+    const handleFire = async () => {
+        if (!prompt().trim()) return;
+        
+        setFireStatus('Firing...');
+        try {
+            // Ensure the prompt is saved first
+            await invoke('set_prompt', { prompt: prompt() });
+            // Then trigger the remote fire
+            const result = await invoke<string>('trigger_fire');
+            setFireStatus(`✅ ${result}`);
+        } catch (error: any) {
+            setFireStatus(`❌ ${error}`);
+        }
+        // Clear status after 5 seconds
+        setTimeout(() => setFireStatus(null), 5000);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -78,7 +95,7 @@ export default function PromptInput(props: PromptInputProps) {
     };
 
     onMount(() => {
-        // Load existing prompt and preview mode on mount
+        // Load existing state on mount
         Promise.all([
             invoke<string>('get_prompt'),
             invoke<boolean>('get_preview_mode')
@@ -131,7 +148,25 @@ export default function PromptInput(props: PromptInputProps) {
                     >
                         {isLoading() ? 'Saving...' : 'Set Prompt'}
                     </button>
+                    <button
+                        class="btn btn-fire"
+                        onClick={handleFire}
+                        disabled={!prompt().trim() || isLoading()}
+                        title="Send prompt to Ghost Window for DOM automation"
+                    >
+                        🚀 Fire
+                    </button>
                 </div>
+                {fireStatus() && (
+                    <div class="fire-status" style={{ 
+                        'margin-top': '8px', 
+                        'font-size': '12px', 
+                        color: fireStatus()!.startsWith('✅') ? '#22c55e' : 
+                                fireStatus()!.startsWith('❌') ? '#ef4444' : '#f59e0b' 
+                    }}>
+                        {fireStatus()}
+                    </div>
+                )}
             </div>
         </div>
     );

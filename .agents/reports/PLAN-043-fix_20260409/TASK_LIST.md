@@ -1,0 +1,1 @@
+- [x] STEP 1: Update SQLite queries inside legacy_idb_migration handler
